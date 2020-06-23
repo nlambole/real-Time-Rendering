@@ -3,9 +3,11 @@
 
 //global function declarations
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+// long pascal WndProc(unsingned int, int, int, long);
 
 //WinMain()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdlie, int iCmdShow)
+//int pascal_convention 
 {
 	//Varable Declarations
 	WNDCLASSEX wndclass;
@@ -56,8 +58,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		break;
 	}
+	
 	return(DefWindowProc(hwnd, iMsg, wParam, lParam));
-
+	
 }
 
 
