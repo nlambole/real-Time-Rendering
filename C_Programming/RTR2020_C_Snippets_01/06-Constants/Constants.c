@@ -42,7 +42,7 @@ enum Numbers
 	TWO,
 	THREE,
 	FOUR,
-	FIVE = 5,
+	FIVE ,
 	SIX,
 	SEVEN,
 	EIGHT,

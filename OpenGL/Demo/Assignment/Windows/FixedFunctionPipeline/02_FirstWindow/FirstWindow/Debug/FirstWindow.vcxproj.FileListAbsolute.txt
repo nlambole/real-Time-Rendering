@@ -1,2 +1,0 @@
-D:\0_MyProject\nrlrtrassignment\OpenGL\Demo\Assignment\Windows\FirstWindow\FirstWindow\Debug\FirstWindow.exe
-D:\0_MyProject\nrlrtrassignment\OpenGL\Demo\Assignment\Windows\FirstWindow\FirstWindow\Debug\FirstWindow.pdb

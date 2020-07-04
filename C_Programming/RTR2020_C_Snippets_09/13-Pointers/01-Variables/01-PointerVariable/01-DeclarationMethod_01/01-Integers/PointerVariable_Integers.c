@@ -14,7 +14,7 @@ int main(void)
 	printf(" ****** Before ptr = &num *********\n\n");
 	printf("Value Of 'num'             =%d\n\n", num_nrl);
 	printf("Address Of 'num'           =%p\n\n", &num_nrl);
-	printf("Vlaue At Address Of 'num' = %d\n\n", *(&num_nrl));
+	printf("Value At Address Of 'num' = %d\n\n", *(&num_nrl));
 
 
 	//Assigning Adreess of Variable 'num' to pinter variable 'ptr'
@@ -25,7 +25,7 @@ int main(void)
 	printf(" ******* After ptr = &num ******\n\n");
 	printf("Value Of 'num '            =%d\n\n", num_nrl);
 	printf("Adress Of 'num'            =%p\n\n", ptr);
-	printf("Vlaue At Adreess Of 'num'  = %d\n\n", *ptr);
+	printf("Value At Adreess Of 'num'  = %d\n\n", *ptr);
 
 	return(0);
 

@@ -11,7 +11,6 @@ int main(void)
     
 	//code
     printf("\n\n");
-    
     printf("i_nrl = %d_nrl\n", i_nrl);
     printf("f_nrl = %f_nrl\n", f_nrl);
     printf("d_nrl = %lf\n", d_nrl);
