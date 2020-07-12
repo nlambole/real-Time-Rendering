@@ -2,6 +2,7 @@
 #include <windows.h>
 
 //global function declarations
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 DWORD dwStyle;
 WINDOWPLACEMENT wpPrev = { sizeof(WINDOWPLACEMENT) };
@@ -66,7 +67,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	
 	//BOOL ChangeResolution(UINT nNewMode, HWND hwnd);
 	
-	void GetCurrentSettings(void);
+	void GetCurrentSettings();
 	HDC hdc;
 	PAINTSTRUCT ps;
 	RECT rc;
@@ -91,6 +92,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case 0x66:
 			//ChangeResolution(nNewMode, hwnd);
 			GetCurrentSettings();
+			break;
 
 		default:
 			break;
@@ -139,67 +141,65 @@ void GetCurrentSettings(void)
 
 void GetCurrentSettings(void)
 {
+	if (gbFullscreen) 
+	{
+		DEVMODE screen;
+		screen.dmSize = sizeof(DEVMODE);
+		screen.dmPelsWidth = GetSystemMetrics(SM_CXSCREEN);
+		screen.dmPelsHeight = GetSystemMetrics(SM_CYSCREEN);
+		screen.dmBitsPerPel = 32;
+		screen.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL;
+		result = ChangeDisplaySettings(&screen, 0) == DISP_CHANGE_SUCCESSFUL;
+	}
 
-	HDC hdc1;
+	// reset display mode if destination mode is windowed
+	if (!gbFullscreen)
+		result = ChangeDisplaySettings(0, 0) == DISP_CHANGE_SUCCESSFUL;
+	
+	//Local Variable Declarations
+
+
 	MONITORINFO mi = { sizeof(MONITORINFO) };
 
-
-	if (gbFullscreen)
+	//Code
+	if (gbFullscreen == false)
 	{
-		SetWindowLongPtr(ghwnd, GWL_STYLE, WS_POPUP);
-		SetWindowPos(ghwnd, HWND_TOP, 0, 0, (mi.rcMonitor.right - mi.rcMonitor.left), (mi.rcMonitor.bottom - mi.rcMonitor.top), SWP_SHOWWINDOW);
+		
+		
 
-		while (EnumDisplaySettings(NULL, dwStyle, &screen))
+		dwStyle = GetWindowLong(ghwnd, GWL_STYLE);
+		if (dwStyle & WS_OVERLAPPEDWINDOW)
 		{
-			if (screen.dmPelsHeight == 600 && screen.dmPelsWidth == 800 && screen.dmBitsPerPel == 32)
-			{
-				result = 1;
-				break;
-			}
-			result += result;
-		}	
-
-		if (result)
-		{
-			screen.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL;
-			result = ChangeDisplaySettings(&screen, CDS_FULLSCREEN);
-
-			if(result == DISP_CHANGE_RESTART)
+			if (GetWindowPlacement(ghwnd, &wpPrev) && result)
 			{
 				
-				result += result;
-				return;
-			}
 
-			if (DISP_CHANGE_SUCCESSFUL == result)
-			{
-			
-				GetCurrentSettings();
-				ChangeDisplaySettings(&screen, 0);
-			}
+				SetWindowLong(ghwnd, GWL_STYLE, (dwStyle & ~WS_OVERLAPPEDWINDOW));
+				//SetWindowPos(ghwnd, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, (mi.rcMonitor.right - mi.rcMonitor.left), (mi.rcMonitor.bottom - mi.rcMonitor.top), SWP_NOZORDER | SWP_FRAMECHANGED);
 
+				DEVMODE screen;
+				screen.dmSize = sizeof(DEVMODE);
+				screen.dmPelsWidth = GetSystemMetrics(SM_CXSCREEN);
+				screen.dmPelsHeight = GetSystemMetrics(SM_CYSCREEN);
+				screen.dmBitsPerPel = 32;
+				screen.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL;
+
+				result = ChangeDisplaySettings(&screen, CDS_FULLSCREEN); //== DISP_CHANGE_SUCCESSFUL;
+			}
 		}
-
-	/*	screen.dmPelsWidth = GetDeviceCaps(hdc1, HORZRES);
-		screen.dmPelsHeight = GetDeviceCaps(hdc1, VERTRES);
-		screen.dmBitsPerPel = GetDeviceCaps(hdc1, BITSPIXEL);
-		screen.dmDisplayFrequency = GetDeviceCaps(hdc1, VREFRESH);*/
-
-
+		ShowCursor(FALSE);
+		gbFullscreen = true;
 	}
 	else
 	{
-		
-		ChangeDisplaySettings(NULL, 0);
-	
-		SetWindowLongPtr(ghwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
-		SetWindowPos(ghwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
-	
+		SetWindowLong(ghwnd, GWL_STYLE, (dwStyle | WS_OVERLAPPEDWINDOW));
+		SetWindowPlacement(ghwnd, &wpPrev);
+		SetWindowPos(ghwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+
 		ShowCursor(TRUE);
 		gbFullscreen = false;
-	}
 
-	
+	}
 }
 
 

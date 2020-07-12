@@ -1,0 +1,3 @@
+#include "MyWindows.h"
+
+MYICON ICON MyIcon.ico
