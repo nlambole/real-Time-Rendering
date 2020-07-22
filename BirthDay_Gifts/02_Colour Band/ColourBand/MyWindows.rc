@@ -1,0 +1,4 @@
+#include "NRL.h"
+
+MYICON ICON MyIcon.ico
+// YBITMAP BITMAP window - xp.bmp
