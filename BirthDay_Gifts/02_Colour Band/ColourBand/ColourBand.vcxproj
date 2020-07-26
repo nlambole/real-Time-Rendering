@@ -143,12 +143,16 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="MyIcon.ico" />
+    <Image Include="window-xp.bmp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MyWindows.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NRL.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="MyMusic.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

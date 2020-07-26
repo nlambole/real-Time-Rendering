@@ -2,6 +2,6 @@
 
 
 #define MYICON 101
-#define MYBITMAP 200
-
+#define MYBITMAP 201
+#define MYMUSIC 301
 

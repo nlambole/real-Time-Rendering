@@ -3,16 +3,22 @@
 #include <stdio.h>
 #include "NRL.h"
 
+#pragma comment (lib , "winmm.lib")
+
+#define MYTIMER 1000
+
 //global function declarations
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 DWORD dwStyle;
 WINDOWPLACEMENT wpPrev = { sizeof(WINDOWPLACEMENT) };
 bool gbFullscreen = false;
 HWND ghwnd = NULL;
+HINSTANCE hInstance;
 
 //WinMain()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdlie, int iCmdShow)
 {
+
 	//Varable Declarations
 	WNDCLASSEX wndclass;
 	HWND hwnd;
@@ -39,7 +45,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 
 	// Create Window
 
-	hwnd = CreateWindow(szAppName, TEXT("FullScreen Mode"), WS_OVERLAPPEDWINDOW, (GetSystemMetrics(SM_CXSCREEN) / 2 - 400), (GetSystemMetrics(SM_CYSCREEN) / 2 - 300), 800, 600, NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindow(szAppName, TEXT("Nandlal Lambole"), WS_OVERLAPPEDWINDOW , (GetSystemMetrics(SM_CXSCREEN) / 2 - 400), (GetSystemMetrics(SM_CYSCREEN) / 2 - 300), CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
 	ghwnd = hwnd;
 	ShowWindow(hwnd, iCmdShow);
 	UpdateWindow(hwnd);
@@ -59,110 +65,208 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	//Function Prototype
 	void ToggleFullScreen(void);
 	//Variable Declaration
-	
-	HDC hdc;
-	static int iPaint;
-	PAINTSTRUCT ps;
-	RECT rc, rc1;
-	static HBRUSH hBrush;
-	LONG length = 0; //length of prev band
 
-	HBITMAP hBmap;
-	HINSTANCE HInstance1;
+	HDC hdc, hdcBmpDC;
+	static int iPaint = -1;
+	PAINTSTRUCT ps;
+	RECT rc, rc1, rc2;
+	static HBRUSH hBrush;
+	 static HBITMAP hBmap;
+
+	static BITMAP bitmap;
 	TCHAR szBitmap[] = TEXT("Hello World !!!");
-	
+	static int left = 0;  //length of prev band
+	static int iwidth = 0;  //length of prev band
+
 	// Code
 	switch (iMsg)
 	{
-	
-		case WM_PAINT:
-			{
-				GetClientRect(hwnd, &rc); //It returns Co-Ordinate Of Window
-				rc1.left = length;
-				length = (rc.right / 6) + length;
-				rc1.right = length ;
-				rc1.top = rc.top;
-				rc1.bottom = rc.bottom;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
 
-				hdc = BeginPaint(hwnd, &ps);
+	case WM_CREATE:
+		PlaySound(MAKEINTRESOURCE(MYMUSIC), hInstance, SND_LOOP | SND_RESOURCE | SND_ASYNC);
 
+		GetClientRect(hwnd, &rc);
+		hBmap = (HBITMAP)LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(MYBITMAP));
 
-				switch (iPaint)
-				{
-				case 0:
-					hBrush = CreateSolidBrush(RGB(120, 255, 0));
-					 //hBmap = (HBITMAP)LoadImage(NULL, MAKEINTRESOURCE(MYICON), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+		if (hBmap == NULL)
+		{
+			MessageBox(hwnd, TEXT("hBmap Failed !!!"), MB_OK, NULL);
+			exit(0);
+		}
+		iPaint = SetTimer(hwnd, MYTIMER, 10000, NULL);
 
-					SelectObject(hdc, hBrush);
-					FillRect(hdc, &rc1, hBrush);
-					break;
+		//if (iPaint == 0)
+		///	MessageBox(hwnd, TEXT(" SetTimer() is NOt Set!", "Error"), MB_OK, NULL);
+		break;
 
-				/*case 1:
-					hBrush = CreateSolidBrush(RGB(0, 0, 255));
-					SelectObject(hdc, hBrush);
-					FillRect(hdc, &rc1, hBrush);
-					break;
+	case WM_TIMER:
+	{
+		KillTimer(hwnd, MYTIMER);
+		iPaint = iPaint + 1;
 
-				case 2:
-					hBrush = CreateSolidBrush(RGB(255, 255, 0));
-					SelectObject(hdc, hBrush);
-					FillRect(hdc, &rc1, hBrush);
-					break;
-				
-				case 3:
-					hBrush = CreateSolidBrush(RGB(0, 255, 128));
-					SelectObject(hdc, hBrush);
-					FillRect(hdc, &rc1, hBrush);
-					break;
+		if (iPaint < 8)
+		{
+			InvalidateRect(hwnd, NULL, FALSE);
+		}
+		else
+		{
+			iPaint = 0;
+			left = 0;
+			InvalidateRect(hwnd, NULL, TRUE);
+		}
+		SetTimer(hwnd, MYTIMER, 10000, NULL);
 
-				case 4:
-					hBrush = CreateSolidBrush(RGB(128, 255, 0));
-					SelectObject(hdc, hBrush);
-					FillRect(hdc, &rc1, hBrush);
-					break;
+	}
+	break;
 
-				case 5:
-					hBrush = CreateSolidBrush(RGB(255, 128, 255));
-					SelectObject(hdc, hBrush);
-					FillRect(hdc, &rc1, hBrush);
-					break;
-*/
+	case WM_SIZE:
+		iPaint = 0;
+		left = 0;
+		InvalidateRect(hwnd, NULL, TRUE);
+		break;
 
-				default:
-					break;
-				
-				}
-				
-
-			}
+	case WM_PAINT:
+	{
+		GetClientRect(hwnd, &rc); //It returns Co-Ordinate Of Window
+		iwidth = rc.right / 8;
+		if (iPaint < 8)
+		{
+			rc1.left = left;
+			left = iwidth + left;
+			rc1.right = left;
+			rc1.top = rc.top;
+			rc1.bottom = rc.bottom / 2;
 			
-			EndPaint(hwnd, &ps);
-			DeleteObject(hBrush);
+		}
+		else
+		{
+			rc1.left = left;
+			left = (rc.right / 8) + left;
+			rc1.right = left;
+			rc1.top = rc.bottom/2;
+			rc1.bottom = rc.bottom ;
+		}
+		hdc = BeginPaint(hwnd, &ps);
+
+
+		switch (iPaint)
+		{
+
+		case 0:
+			hBrush = CreateSolidBrush(RGB(255, 128, 0));
+			SelectObject(hdc, hBrush);
+			FillRect(hdc, &rc1, hBrush);
+			hdcBmpDC = CreateCompatibleDC(NULL); 
+
+			SelectObject(hdcBmpDC, hBmap);
+			GetObject(hBmap, sizeof(BITMAP), &bitmap);
+			StretchBlt(hdc, rc1.left, rc1.top, iwidth, rc1.bottom, hdcBmpDC, 0, 0, bitmap.bmWidth ,bitmap.bmHeight, SRCCOPY);
+			DeleteDC(hdcBmpDC);
+			break;
+
+		case 1:
+			hBrush = CreateSolidBrush(RGB(0, 0, 255));
+			SelectObject(hdc, hBrush);
+			FillRect(hdc, &rc1, hBrush);
+			break;
+
+		case 2:
+			hBrush = CreateSolidBrush(RGB(255, 255, 0));
+			SelectObject(hdc, hBrush);
+			FillRect(hdc, &rc1, hBrush);
 
 			break;
 
-		case WM_DESTROY:
-			PostQuitMessage(0);
+		case 3:
+			hBrush = CreateSolidBrush(RGB(0, 255, 128));
+			SelectObject(hdc, hBrush);
+			FillRect(hdc, &rc1, hBrush);
 			break;
 
-		case WM_KEYDOWN:
-			switch (wParam)
-			{
-			case 0x46:
-			case 0x66:
-				ToggleFullScreen(); //Call
-				break;
-
-			default:
-				break;
-			}
+		case 4:
+			hBrush = CreateSolidBrush(RGB(128, 255, 0));
+			SelectObject(hdc, hBrush);
+			FillRect(hdc, &rc1, hBrush);
 			break;
+
+		case 5:
+			hBrush = CreateSolidBrush(RGB(255, 128, 255));
+			SelectObject(hdc, hBrush);
+			FillRect(hdc, &rc1, hBrush);
+			break;
+
+		case 6:
+			hBrush = CreateSolidBrush(RGB(255, 128, 0));
+			SelectObject(hdc, hBrush);
+			FillRect(hdc, &rc1, hBrush);
+			hdcBmpDC = CreateCompatibleDC(NULL); 
+			SelectObject(hdcBmpDC, hBmap);
+			GetObject(hBmap, sizeof(BITMAP), &bitmap);
+			StretchBlt(hdc, rc1.left, rc1.top, iwidth, rc1.bottom, hdcBmpDC, 0, 0, bitmap.bmWidth ,bitmap.bmHeight, SRCCOPY);
+			DeleteDC(hdcBmpDC);
+			break;
+
+		case 7:
+			hBrush = CreateSolidBrush(RGB(0, 0, 255));
+			SelectObject(hdc, hBrush);
+			FillRect(hdc, &rc1, hBrush);
+			break;
+
+		case 8:
+			hBrush = CreateSolidBrush(RGB(255, 255, 0));
+			SelectObject(hdc, hBrush);
+			FillRect(hdc, &rc1, hBrush);
+			break;
+
+		case 9:
+			hBrush = CreateSolidBrush(RGB(0, 255, 128));
+			SelectObject(hdc, hBrush);
+			FillRect(hdc, &rc1, hBrush);
+			break;
+
+		case 10:
+			hBrush = CreateSolidBrush(RGB(128, 255, 0));
+			SelectObject(hdc, hBrush);
+			FillRect(hdc, &rc1, hBrush);
+			break;
+
+		case 11:
+			hBrush = CreateSolidBrush(RGB(255, 128, 255));
+			SelectObject(hdc, hBrush);
+			FillRect(hdc, &rc1, hBrush);
+			break;
+
+		default:
+			break;
+		}
+		EndPaint(hwnd, &ps);
+		DeleteObject(hBrush);
+
+	}
+	
+	break;
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case 0x46:
+		case 0x66:
+			ToggleFullScreen(); //Call
+			break;
+
+		default:
+			break;
+		}
+		break;
 
 	}
 
 	return(DefWindowProc(hwnd, iMsg, wParam, lParam));
 
 }
+
 
 void ToggleFullScreen(void)
 {
