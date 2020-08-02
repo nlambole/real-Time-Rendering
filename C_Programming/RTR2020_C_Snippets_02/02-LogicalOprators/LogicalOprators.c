@@ -1,6 +1,6 @@
 #include <stdio.h>
-int main(void)
 
+int main(void)
 {
 	//variable declarations
 	int a_nrl;
