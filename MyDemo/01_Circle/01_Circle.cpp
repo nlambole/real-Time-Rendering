@@ -135,7 +135,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		return(0);
 
 	case WM_SIZE:
-		Resize(LOWORD(lParam), HIWORD(wParam));
+		Resize(LOWORD(lParam), HIWORD(lParam)); //LWord 
 		break;
 
 	case WM_KEYDOWN:
@@ -271,7 +271,7 @@ void Resize(int iWidth, int iHeight)
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0f, GLfloat(iWidth) / GLfloat(iHeight), 0.1f, 100.0f);
+	gluPerspective(45.0f, GLfloat(iWidth) / GLfloat(iHeight), 0.1f, 100.0f); //
 }
 
 void Display(void)
