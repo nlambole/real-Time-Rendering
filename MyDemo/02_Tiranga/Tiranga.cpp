@@ -4,8 +4,10 @@
 #include <math.h>
 #include "NRL.h"
 #include <gl/gl.h>
+#include <gl/GLU.h>
 
 #pragma comment (lib , "winmm.lib")
+#pragma comment (lib, "glu32")
 
 #define WIN_WIDTH 800
 #define WIN_HEIGHT 600
@@ -20,13 +22,16 @@ HWND ghwnd = NULL;
 HDC ghdc = NULL;
 HGLRC ghrc = NULL;
 FILE* gpFile = NULL;
-float iRadius = 0.05f;
-float iA = 0.0f;
-float nX = 0, nY = 0;
+static float iRadius = 0.05f;
+static float iA = 0.0f;
+static float nX = 0, nY = 0;
 
-float fOrangeX = 0.0f, fWhiteX = 0.0f, fGreenX = 0.0f;
-float fY = 0.0f;
-double oUnit = 0.0002, wUnit = 0.0002, gUnit = 0.0002, pUnit = 0.0002;
+static float fWorld = 0.0f;
+static double iUnit = 0.002;
+
+static float fOrangeX = 0.0f, fWhiteX = 0.0f, fGreenX = 0.0f;
+static float fY = 0.0f;
+static double oUnit = 0.0002, wUnit = 0.0002, gUnit = 0.0002, pUnit = 0.0002;
 
 
 //WinMain()
@@ -139,7 +144,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		return(0);
 
 	case WM_SIZE:
-		Resize(LOWORD(lParam), HIWORD(wParam));
+		Resize(LOWORD(lParam), HIWORD(lParam));
 		break;
 
 	case WM_KEYDOWN:
@@ -264,15 +269,14 @@ void Initialize(void)
 
 }
 
-void Resize(int Width, int Height)
+void Resize(int iWidth, int iHeight)
 {
 	
 	//Code
-	iRadius = 0.05f;
+	iRadius = 0.08f;
 	 iA = 0.0f;
 	 nX = 0;
 	 nY = 0;
-
 	 fOrangeX = 0.0f;
 	 fWhiteX = 0.0f;
 	fGreenX = 0.0f;
@@ -282,29 +286,62 @@ void Resize(int Width, int Height)
 	 gUnit = 0.002;
 	 pUnit = 0.002;
 
-	if (Height == 0)
+	 fWorld = 0.0f;
+	 iUnit = 0.002;
+
+	if (iHeight == 0)
 	{
-		Height = 1;
+		iHeight = 1;
 	}
-	glViewport(0, 0, (GLsizei)Width, (GLsizei)Height);
+	glViewport(0, 0, (GLsizei)iWidth, (GLsizei)iHeight);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
+	gluPerspective(45.0f, GLfloat(iWidth) / GLfloat(iHeight), 0.1f, 100.0f);
 }
 
 void Display(void)
 {
+
 	//Code
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glPointSize(1);
+	glTranslatef(0.0f, 0.0f, -4.0f);
+	glPointSize(2);
 	glLineWidth(1);
+
+	//Background
+	glBegin(GL_QUADS);
+	glColor3f(0.70f, 0.98f, 1.0f);
+	glVertex3f(16.0f, 16.0f, 0.0f);
+	glVertex3f(-16.0f, 16.0f, 0.0f);
+	glVertex3f(-16.0f, 0.08f, 0.0f);
+	glVertex3f(16.0f, 0.08f, 0.0f);
+	glEnd();
+
+	glBegin(GL_QUADS);
+	glColor3f(0.44f, 0.89f, 0.0f);
+	glVertex3f(-16.0f, 0.08f, 0.0f);
+	glColor3f(0.44f, 0.92f, 0.0f);
+	glVertex3f(16.0f, 0.08f, 0.0f);
+	glColor3f(0.45f, 0.85f, 0.0f);
+	glVertex3f(16.0f, -16.0f, 0.0f);
+	glColor3f(0.40f, 0.88f, 0.0f);
+	glVertex3f(-16.0f, -16.0f, 0.0f);
+	glEnd();
 
 	//FlagPole
 	glBegin(GL_QUADS);
 	glColor3f(0.407f, 0.407f, 0.407f);
+	glVertex3f(-1.0f, -1.45f, 0.0f);
+	glVertex3f(0.50f, -1.45f, 0.0f);
+	glVertex3f(0.32f, -1.35f, 0.0f);
+	glVertex3f(-0.82f, -1.35f, 0.0f);
+	glEnd();
 
+	glBegin(GL_QUADS);
+	glColor3f(0.407f, 0.407f, 0.407f);
 	glVertex3f(-0.49f, -1.0f + fY, 0.0f);
 	glVertex3f(-0.52f, -1.0f + fY, 0.0f);
 	glVertex3f(-0.52f, -1.35f, 0.0f);
@@ -312,103 +349,75 @@ void Display(void)
 
 	fY += pUnit;
 
-	if (fY >= 1.35 )
+	if (fY >= 1.35)
 	{
 		pUnit = 0.0;
 	}
-
 	glEnd();
 
-	// OrangeFlag
-	glBegin(GL_QUADS);
-	glColor3f(1.0f, 0.6f, 0.2f);
 
-	glVertex3f(-1.f + fOrangeX, 0.3f, 0.0f);  
-	glVertex3f(-1.0f + fOrangeX, 0.1f, 0.0f);
-	glVertex3f(-2.0f + fOrangeX, 0.1f, 0.0f);
-	glVertex3f(-2.0f + fOrangeX, 0.3f, 0.0f);
-	glEnd();
+	if (pUnit == 0.0 )
+	{	
 
-	if (pUnit == 0)
-	{
-		fOrangeX += oUnit;
-
-		if (fOrangeX >= 1.5)
+		glLoadIdentity();
+		glTranslatef(0.0f, 0.0f, -0.1f - fWorld ); // Camera + World
+		if (fWorld < 3.96)
 		{
-			oUnit = 0.0;
-		}
-	}
-	
-
-	//White Flag
-	glBegin(GL_QUADS);
-	glColor3f(1.0f, 1.0f, 1.0f);
-
-	glVertex3f(-1.0f + fWhiteX, 0.1f, 0.0f); //(+,+)
-	glVertex3f(-1.0f + fWhiteX, -0.1f, 0.0f); //(+,-)
-	glVertex3f(-2.0f + fWhiteX, -0.1f, 0.0f); //(-,-)
-	glVertex3f(-2.0f + fWhiteX, 0.1f, 0.0f); //(-,+)
-	glEnd();
-
-	if (oUnit == 0)
-	{
-		fWhiteX += wUnit;
-		if (fWhiteX >= 1.5)
-		{
-			wUnit = 0.0;
-		}
-	}
-	
-	//Green Flag
-	glBegin(GL_QUADS);
-	glColor3f(0.074f, 0.533f, 0.0313f);
-
-	glVertex3f(-1.0f + fGreenX, -0.1f, 0.0f);
-	glVertex3f(-2.0f + fGreenX, -0.1f, 0.0f);
-	glVertex3f(-2.0f + fGreenX, -0.3f, 0.0f);
-	glVertex3f(-1.0f + fGreenX, -0.3f, 0.0f);
-	glEnd();
-
-	if (wUnit == 0)
-	{
-		fGreenX += gUnit;
-
-		if (fGreenX >= 1.5)
-		{
-			gUnit = 0.0;
+			fWorld += iUnit;
 		}
 
-	}
-	
+		// OrangeFlag
+		glBegin(GL_QUADS);
+		glColor3f(1.0f, 0.6f, 0.2f);
+		glVertex3f(-0.5f, 0.3f, 0.0f);
+		glVertex3f(0.5f, 0.3f, 0.0f);
+		glVertex3f(0.5f, 0.1f, 0.0f);
+		glVertex3f(-0.5f, 0.1f, 0.0f);
+		glEnd();
 
-	// ********************* ASHOKA CHAKRA ***************
-	if (gUnit == 0.0)
-	{
+		//White Flag
+		glBegin(GL_QUADS);
+		glColor3f(1.0f, 1.0f, 1.0f);
+		glVertex3f(0.5f, 0.1f, 0.0f);
+		glVertex3f(0.5f, -0.1f, 0.0f);
+		glVertex3f(-0.5f, -0.1f, 0.0f);
+		glVertex3f(-0.5f, 0.1f, 0.0f);
+		glEnd();
+
+		//Green Flag
+		glBegin(GL_QUADS);
+		glColor3f(0.074f, 0.533f, 0.0313f);
+		glVertex3f(0.5f, -0.1f, 0.0f);
+		glVertex3f(-0.5f, -0.1f, 0.0f);
+		glVertex3f(-0.5f, -0.3f, 0.0f);
+		glVertex3f(0.5f, -0.3f, 0.0f);
+		glEnd();
+
+
 		for (iA = 0; iA < 360; iA++)
 		{
-			glColor3f(0.0f, 0.0f, 0.501f);
 			nX = iRadius * cosf(iA);
 			nY = iRadius * sinf(iA);
 
 			glBegin(GL_POINTS);
+			glColor3f(0.0f, 0.0f, 0.501f);
 			glVertex3f(nX, nY, 0.0f);
 			glEnd();
 		}
 
-		for (float iB = 0; iB < 28; iB++)
+		for (float iB = 0; iB < 25; iB++)
 		{
-			glColor3f(0.0f, 0.0f, 0.501f);
 			float mX = iRadius * cosf(iB);
 			float mY = iRadius * sinf(iB);
 
 			glBegin(GL_LINES);
+			glColor3f(0.0f, 0.0f, 0.501f);
 			glVertex3f(0.0f, 0.0f, 0.0f);
 			glVertex3f(mX, mY, 0.0f);
 			glEnd();
 
 		}
 	}
-	
 
 	SwapBuffers(ghdc); //Native API for Windowing
 	//glFlush();
