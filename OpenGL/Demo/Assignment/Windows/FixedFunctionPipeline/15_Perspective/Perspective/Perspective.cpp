@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "NRL.h"
 #include <gl/gl.h>
+#include <gl/glu.h>
 
 #define WIN_WIDTH 800
 #define WIN_HEIGHT 600
@@ -23,8 +24,9 @@ FILE* gpFile = NULL;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdlie, int iCmdShow)
 {
 	//Function Declaration
-	void Initialize(void);
 	void Display(void);
+	void Initialize(void);
+	//void Display(void);
 
 	//Varable Declarations
 	WNDCLASSEX wndclass;
@@ -35,7 +37,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 
 	if (fopen_s(&gpFile, "NRLLog.txt", "w") != 0)
 	{
-		MessageBox(NULL, TEXT("Cannot Open Desir//ed File"), ERROR, MB_OK);
+		MessageBox(NULL, TEXT("Cannot Open Desired File"), ERROR, MB_OK);
 		exit(0);
 	}
 
@@ -58,7 +60,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 	RegisterClassEx(&wndclass);
 
 	// Create Window
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW,szAppName, TEXT("OpenGL BlueScreen"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS|  WS_VISIBLE, 100,100, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("OpenGL BlueScreen"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, 100, 100, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
 	ghwnd = hwnd;
 
 	Initialize(); //Call           
@@ -104,7 +106,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	void ToggleFullScreen(void);
 	void Resize(int, int);
 	void UnInitialize(void);
-	
+
 
 	// Code
 	switch (iMsg)
@@ -122,11 +124,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		gbActiveWindow = false;
 		break;
 
-	case WM_ERASEBKGND: 
+	case WM_ERASEBKGND:
 		return(0);
-	
+
 	case WM_SIZE:
-		Resize(LOWORD(lParam), HIWORD(wParam));
+		Resize(LOWORD(lParam), HIWORD(lParam));
 		break;
 
 	case WM_KEYDOWN:
@@ -203,12 +205,12 @@ void Initialize(void)
 
 	//Code
 	Resize(WIN_WIDTH, WIN_HEIGHT); //WarmUp Call To Resize
-	
+
 	ghdc = GetDC(ghwnd);
 	ZeroMemory(&pfd, sizeof(PIXELFORMATDESCRIPTOR));
 	pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
 	pfd.nVersion = 1;
-	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
+	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
 	pfd.iPixelType = PFD_TYPE_RGBA;
 	pfd.cColorBits = 32;
 	pfd.cRedBits = 8;
@@ -228,15 +230,15 @@ void Initialize(void)
 		fprintf(gpFile, "SetPixel Format Function Failed..!");
 		DestroyWindow(ghwnd);
 	}
-		
-	ghrc = wglCreateContext(ghdc);	
+
+	ghrc = wglCreateContext(ghdc);
 	if (ghrc == NULL)
 	{
 		fprintf(gpFile, "wglCreateContext Function Failed..!");
 		DestroyWindow(ghwnd);
 	}
-	
-	if (wglMakeCurrent(ghdc, ghrc) == FALSE) 
+
+	if (wglMakeCurrent(ghdc, ghrc) == FALSE)
 	{
 		fprintf(gpFile, "wglMakeCurrent Function Failed..!");
 		DestroyWindow(ghwnd);
@@ -244,7 +246,7 @@ void Initialize(void)
 
 	//SetClearColour
 
-	glClearColor(0.0f, 0.0f, 1.0f, 0.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	//WarmUp Resize Call
 	Resize(WIN_WIDTH, WIN_HEIGHT);
@@ -259,14 +261,38 @@ void Resize(int Width, int Height)
 		Height = 1;
 	}
 	glViewport(0, 0, (GLsizei)Width, (GLsizei)Height);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(45.0f, (GLfloat)Width / (GLfloat)Height, 0.1f, 100.0f);
 }
 
 void Display(void)
-{	
+{
 	//Code
 	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, -3.0f);
 
-	glFlush();
+	glBegin(GL_TRIANGLES);
+
+	glColor3f(1.0f, 0.0f, 0.0f);
+
+	glVertex3f(0.0f, 1.0f, 0.0f);
+
+	glColor3f(0.0f, 1.0f, 0.0f);
+
+	glVertex3f(-1.0f, -1.0f, 0.0f);
+
+	glColor3f(0.0f, 0.0f, 1.0f);
+
+	glVertex3f(1.0f, -1.0f, 0.0f);
+
+	glEnd();
+
+
+	SwapBuffers(ghdc); //Native API for Windowing
 }
 
 void UnInitialize(void)
@@ -282,7 +308,7 @@ void UnInitialize(void)
 		ShowCursor(TRUE);
 	}
 
-	if(wglGetCurrentContext() == ghrc)
+	if (wglGetCurrentContext() == ghrc)
 	{
 		wglMakeCurrent(NULL, NULL);
 	}
@@ -303,6 +329,6 @@ void UnInitialize(void)
 	{
 		fclose(gpFile);
 		gpFile = NULL;
-		
+
 	}
 }

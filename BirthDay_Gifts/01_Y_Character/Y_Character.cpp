@@ -2,8 +2,6 @@
 
 bool bFullscreen = false;
 
-
-
 float start_x = 0.0f;
 float start_y = 0.0f;
 float unit=0.0002;

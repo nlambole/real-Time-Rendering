@@ -274,20 +274,20 @@ void Resize(int iWidth, int iHeight)
 	
 	//Code
 	iRadius = 0.08f;
-	 iA = 0.0f;
-	 nX = 0;
-	 nY = 0;
-	 fOrangeX = 0.0f;
-	 fWhiteX = 0.0f;
+	iA = 0.0f;
+	nX = 0;
+	nY = 0;
+	fOrangeX = 0.0f;
+	fWhiteX = 0.0f;
 	fGreenX = 0.0f;
-	 fY = 0.0f;
-	 oUnit = 0.002;
-	 wUnit = 0.002;
-	 gUnit = 0.002;
-	 pUnit = 0.002;
+	fY = 0.0f;
+	oUnit = 0.002;
+	wUnit = 0.002;
+	gUnit = 0.002;
+	pUnit = 0.002;
 
-	 fWorld = 0.0f;
-	 iUnit = 0.002;
+	fWorld = 0.0f;
+	iUnit = 0.002;
 
 	if (iHeight == 0)
 	{
@@ -314,22 +314,24 @@ void Display(void)
 	//Background
 	glBegin(GL_QUADS);
 	glColor3f(0.70f, 0.98f, 1.0f);
-	glVertex3f(16.0f, 16.0f, 0.0f);
-	glVertex3f(-16.0f, 16.0f, 0.0f);
-	glVertex3f(-16.0f, 0.08f, 0.0f);
-	glVertex3f(16.0f, 0.08f, 0.0f);
+	glVertex3f(5.0f, 5.0f, 0.0f);
+	glVertex3f(-5.0f, 5.0f, 0.0f);
+
+	glVertex3f(-5.0f, -1.0f, 0.0f);
+	glVertex3f(5.0f, -1.0f, 0.0f);
 	glEnd();
 
 	glBegin(GL_QUADS);
 	glColor3f(0.44f, 0.89f, 0.0f);
-	glVertex3f(-16.0f, 0.08f, 0.0f);
+	glVertex3f(-5.0f, -1.0f, 0.0f);
 	glColor3f(0.44f, 0.92f, 0.0f);
-	glVertex3f(16.0f, 0.08f, 0.0f);
+	glVertex3f(5.0f, -1.0f, 0.0f);
 	glColor3f(0.45f, 0.85f, 0.0f);
-	glVertex3f(16.0f, -16.0f, 0.0f);
+	glVertex3f(5.0f, -5.0f, 0.0f);
 	glColor3f(0.40f, 0.88f, 0.0f);
-	glVertex3f(-16.0f, -16.0f, 0.0f);
+	glVertex3f(-5.0f, -5.0f, 0.0f);
 	glEnd();
+
 
 	//FlagPole
 	glBegin(GL_QUADS);
@@ -360,10 +362,14 @@ void Display(void)
 	{	
 
 		glLoadIdentity();
-		glTranslatef(0.0f, 0.0f, -0.1f - fWorld ); // Camera + World
+		glTranslatef(0.0f, 0.0f, -0.1f - fWorld ); // Camera + World -4.0f
 		if (fWorld < 3.96)
 		{
 			fWorld += iUnit;
+			if (fWorld == 3.94)
+			{
+				iUnit = 0.0;
+			}
 		}
 
 		// OrangeFlag
@@ -405,11 +411,11 @@ void Display(void)
 			glEnd();
 		}
 
-		for (float iB = 0; iB < 25; iB++)
+		for (float iB = 0; iB < 24; iB++)
 		{
 			float mX = iRadius * cosf(iB);
 			float mY = iRadius * sinf(iB);
-
+			glLineWidth(2);
 			glBegin(GL_LINES);
 			glColor3f(0.0f, 0.0f, 0.501f);
 			glVertex3f(0.0f, 0.0f, 0.0f);
@@ -417,7 +423,152 @@ void Display(void)
 			glEnd();
 
 		}
+
+			//JAI HIND
+		//************************************************ 
+			glLineWidth(5);
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(-1.3f, 1.2f, 0.0f);
+			glVertex3f(-1.1f, 1.2f, 0.0f);
+			glEnd();
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(-1.2f, 1.2f, 0.0f);
+			glVertex3f(-1.2f, 0.7f, 0.0f);
+			glEnd();
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(-1.4f, 0.7f, 0.0f);
+			glVertex3f(-1.2f, 0.7f, 0.0f);
+			glEnd();
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(-1.4f, 0.7f, 0.0f);
+			glVertex3f(-1.4f, 0.8f, 0.0f);
+			glEnd();															//J
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(-0.9f, 1.2f, 0.0f);
+			glVertex3f(-1.0f, 0.7f, 0.0f);
+			glEnd();
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(-0.9f, 1.2f, 0.0f);
+			glVertex3f(-0.8f, 0.7f, 0.0f);
+			glEnd();
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(-1.0f, 0.95f, 0.0f);
+			glVertex3f(-0.8f, 0.95f, 0.0f);
+			glEnd();															//A
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(-0.7f, 1.2f, 0.0f);
+			glVertex3f(-0.5f, 1.2f, 0.0f);
+			glEnd();
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(-0.7f, 0.7f, 0.0f);
+			glVertex3f(-0.5f, 0.7f, 0.0f);
+			glEnd();
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(-0.6f, 1.2f, 0.0f);
+			glVertex3f(-0.6f, 0.7f, 0.0f);
+			glEnd();																// I
+
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(-0.1f, 1.2f, 0.0f);
+			glVertex3f(-0.1f, 0.7f, 0.0f);
+			glEnd();
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(0.15f, 1.2f, 0.0f);
+			glVertex3f(0.15f, 0.7f, 0.0f);
+			glEnd();
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(-0.1f, 0.95f, 0.0f);
+			glVertex3f(0.15f, 0.95f, 0.0f);
+			glEnd();												//H
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(0.25f, 1.2f, 0.0f);
+			glVertex3f(0.45f, 1.2f, 0.0f);
+			glEnd();
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(0.25f, 0.7f, 0.0f);
+			glVertex3f(0.45f, 0.7f, 0.0f);
+			glEnd();
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(0.35f, 1.2f, 0.0f);
+			glVertex3f(0.35f, 0.7f, 0.0f);
+			glEnd();											//I
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(0.55f, 1.2f, 0.0f);
+			glVertex3f(0.55f, 0.7f, 0.0f);
+			glEnd();
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(0.80f, 1.2f, 0.0f);
+			glVertex3f(0.80f, 0.7f, 0.0f);
+			glEnd();
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(0.55f, 1.2f, 0.0f);
+			glVertex3f(0.80f, 0.7f, 0.0f);
+			glEnd();												//N
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(1.0f, 1.2f, 0.0f);
+			glVertex3f(1.0f, 0.7f, 0.0f);
+			glEnd();
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(0.90f, 1.2f, 0.0f);
+			glVertex3f(1.2f, 1.2f, 0.0f);
+			glEnd();
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(0.90f, 0.7f, 0.0f);
+			glVertex3f(1.2f, 0.7f, 0.0f);
+			glEnd();
+
+			glBegin(GL_LINES);
+			glColor3f(0.407f, 0.407f, 0.407f);
+			glVertex3f(1.2f, 1.2f, 0.0f);
+			glVertex3f(1.2f, 0.7f, 0.0f);
+			glEnd();
+		
 	}
+
 
 	SwapBuffers(ghdc); //Native API for Windowing
 	//glFlush();

@@ -23,19 +23,20 @@ FILE* gpFile = NULL;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdlie, int iCmdShow)
 {
 	//Function Declaration
-	void Initialize(void);
 	void Display(void);
+	void Initialize(void);
+	//void Display(void);
 
 	//Varable Declarations
 	WNDCLASSEX wndclass;
 	HWND hwnd;
 	MSG msg;
-	TCHAR szAppName[] = TEXT("FullScreen Window");
+	TCHAR szAppName[] = TEXT("MappleLeaf : Nandlal Lambole");
 	bool bDone = false;
 
 	if (fopen_s(&gpFile, "NRLLog.txt", "w") != 0)
 	{
-		MessageBox(NULL, TEXT("Cannot Open Desir//ed File"), ERROR, MB_OK);
+		MessageBox(NULL, TEXT("Cannot Open Desired File"), ERROR, MB_OK);
 		exit(0);
 	}
 
@@ -58,7 +59,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 	RegisterClassEx(&wndclass);
 
 	// Create Window
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW,szAppName, TEXT("OpenGL BlueScreen"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS|  WS_VISIBLE, 100,100, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("MappleLeaf : Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, (GetSystemMetrics(SM_CXSCREEN) / 2 - 400), (GetSystemMetrics(SM_CYSCREEN) / 2 - 300), WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
 	ghwnd = hwnd;
 
 	Initialize(); //Call           
@@ -104,7 +105,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	void ToggleFullScreen(void);
 	void Resize(int, int);
 	void UnInitialize(void);
-	
+
 
 	// Code
 	switch (iMsg)
@@ -122,11 +123,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		gbActiveWindow = false;
 		break;
 
-	case WM_ERASEBKGND: 
+	case WM_ERASEBKGND:
 		return(0);
-	
+
 	case WM_SIZE:
-		Resize(LOWORD(lParam), HIWORD(wParam));
+		Resize(LOWORD(lParam), HIWORD(lParam));
 		break;
 
 	case WM_KEYDOWN:
@@ -203,12 +204,12 @@ void Initialize(void)
 
 	//Code
 	Resize(WIN_WIDTH, WIN_HEIGHT); //WarmUp Call To Resize
-	
+
 	ghdc = GetDC(ghwnd);
 	ZeroMemory(&pfd, sizeof(PIXELFORMATDESCRIPTOR));
 	pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
 	pfd.nVersion = 1;
-	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
+	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
 	pfd.iPixelType = PFD_TYPE_RGBA;
 	pfd.cColorBits = 32;
 	pfd.cRedBits = 8;
@@ -228,15 +229,15 @@ void Initialize(void)
 		fprintf(gpFile, "SetPixel Format Function Failed..!");
 		DestroyWindow(ghwnd);
 	}
-		
-	ghrc = wglCreateContext(ghdc);	
+
+	ghrc = wglCreateContext(ghdc);
 	if (ghrc == NULL)
 	{
 		fprintf(gpFile, "wglCreateContext Function Failed..!");
 		DestroyWindow(ghwnd);
 	}
-	
-	if (wglMakeCurrent(ghdc, ghrc) == FALSE) 
+
+	if (wglMakeCurrent(ghdc, ghrc) == FALSE)
 	{
 		fprintf(gpFile, "wglMakeCurrent Function Failed..!");
 		DestroyWindow(ghwnd);
@@ -244,7 +245,7 @@ void Initialize(void)
 
 	//SetClearColour
 
-	glClearColor(0.0f, 0.0f, 1.0f, 0.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	//WarmUp Resize Call
 	Resize(WIN_WIDTH, WIN_HEIGHT);
@@ -259,14 +260,100 @@ void Resize(int Width, int Height)
 		Height = 1;
 	}
 	glViewport(0, 0, (GLsizei)Width, (GLsizei)Height);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
 }
 
 void Display(void)
-{	
+{
 	//Code
 	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
-	glFlush();
+	/*glBegin(GL_LINES);
+	glColor3f(0.78f, 0.36f, 0.23f);
+	glVertex3f(1.0f, -0.3f, 0.f);
+	glVertex3f(-1.0f, -0.3f, 0.f);
+	glEnd();*/
+	
+
+	//Veins
+	glBegin(GL_TRIANGLES); //Middle
+	glColor3f(0.78f, 0.36f, 0.23f);
+	glVertex3f(0.0f, 0.8f, 0.0f);
+	glVertex3f(-0.02f, -0.8f, 0.0f);
+	glVertex3f(0.02f, -0.8f, 0.0f);
+	glEnd();
+
+	glBegin(GL_TRIANGLES); // Right
+	glColor3f(0.78f, 0.36f, 0.23f);
+
+	glVertex3f(0.6f, 0.4f, 0.0f);
+	glVertex3f(0.016f, -0.44f, 0.0f);
+	glVertex3f(0.016f, -0.4f, 0.0f);
+	glEnd();
+
+	glBegin(GL_TRIANGLES); // Right1
+	glColor3f(0.78f, 0.36f, 0.23f);
+
+	glVertex3f(0.38f, 0.43f, 0.0f);
+	glVertex3f(0.31f, 0.0f, 0.0f);
+	glVertex3f(0.29f, -0.03f, 0.0f);
+	glEnd();
+
+	glBegin(GL_TRIANGLES); // Right2
+	glColor3f(0.78f, 0.36f, 0.23f);
+
+	glVertex3f(0.7f, 0.05f, 0.0f);
+	glVertex3f(0.23f, -0.1f, 0.0f);
+	glVertex3f(0.245f, -0.11f, 0.0f);
+	glEnd();
+
+	glBegin(GL_TRIANGLES); // Right3
+	glColor3f(0.78f, 0.36f, 0.23f);
+
+	glVertex3f(0.2f, 0.6f, 0.0f);
+	glVertex3f(0.0f, 0.20f, 0.0f);
+	glVertex3f(0.0f, 0.235f, 0.0f);
+	glEnd();
+
+	glBegin(GL_TRIANGLES); //Left
+	glColor3f(0.78f, 0.36f, 0.23f);
+
+	glVertex3f(-0.6f, 0.4f, 0.0f);
+	glVertex3f(-0.016f, -0.44f, 0.0f);
+	glVertex3f(-0.016f, -0.4f, 0.0f);
+	glEnd();
+
+	glBegin(GL_TRIANGLES); // left1
+	glColor3f(0.78f, 0.36f, 0.23f);
+
+	glVertex3f(-0.38f, 0.43f, 0.0f);
+	glVertex3f(-0.31f, 0.0f, 0.0f);
+	glVertex3f(-0.29f, -0.03f, 0.0f);
+	glEnd();
+	
+	glBegin(GL_TRIANGLES); // left2
+	glColor3f(0.78f, 0.36f, 0.23f);
+
+	glVertex3f(-0.7f, 0.05f, 0.0f);
+	glVertex3f(-0.23f, -0.1f, 0.0f);
+	glVertex3f(-0.245f, -0.11f, 0.0f);
+	glEnd();
+
+	glBegin(GL_TRIANGLES); // left3
+	glColor3f(0.78f, 0.36f, 0.23f);
+
+	glVertex3f(-0.2f, 0.6f, 0.0f);
+	glVertex3f(-0.0f, 0.20f, 0.0f);
+	glVertex3f(-0.0f, 0.235f, 0.0f);
+	glEnd();
+
+
+
+	SwapBuffers(ghdc); //Native API for Windowing
 }
 
 void UnInitialize(void)
@@ -282,7 +369,7 @@ void UnInitialize(void)
 		ShowCursor(TRUE);
 	}
 
-	if(wglGetCurrentContext() == ghrc)
+	if (wglGetCurrentContext() == ghrc)
 	{
 		wglMakeCurrent(NULL, NULL);
 	}
@@ -303,6 +390,6 @@ void UnInitialize(void)
 	{
 		fclose(gpFile);
 		gpFile = NULL;
-		
+
 	}
 }

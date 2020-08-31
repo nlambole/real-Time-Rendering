@@ -129,7 +129,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		return(0);
 
 	case WM_SIZE:
-		Resize(LOWORD(lParam), HIWORD(wParam));
+		Resize(LOWORD(lParam), HIWORD(lParam));
 		break;
 
 	case WM_KEYDOWN:

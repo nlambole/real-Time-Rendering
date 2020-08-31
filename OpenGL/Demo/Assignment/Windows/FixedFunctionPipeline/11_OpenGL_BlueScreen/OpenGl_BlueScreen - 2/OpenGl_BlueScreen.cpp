@@ -58,7 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 	RegisterClassEx(&wndclass);
 
 	// Create Window
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW,szAppName, TEXT("OpenGL BlueScreen"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS|  WS_VISIBLE, 100,100, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("OpenGL BlueScreen"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, 100, 100, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
 	ghwnd = hwnd;
 
 	Initialize(); //Call           
@@ -125,9 +125,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		gbActiveWindow = false;
 		break;
 
-	case WM_ERASEBKGND: 
+	case WM_ERASEBKGND:
 		return(0);
-	
+
 	case WM_SIZE:
 		Resize(LOWORD(lParam), HIWORD(wParam));
 		break;
@@ -206,7 +206,7 @@ void Initialize(void)
 
 	//Code
 	Resize(WIN_WIDTH, WIN_HEIGHT); //WarmUp Call To Resize
-	
+
 	ghdc = GetDC(ghwnd);
 	ZeroMemory(&pfd, sizeof(PIXELFORMATDESCRIPTOR));
 	pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
@@ -231,15 +231,15 @@ void Initialize(void)
 		fprintf(gpFile, "SetPixel Format Function Failed..!");
 		DestroyWindow(ghwnd);
 	}
-		
-	ghrc = wglCreateContext(ghdc);	
+
+	ghrc = wglCreateContext(ghdc);
 	if (ghrc == NULL)
 	{
 		fprintf(gpFile, "wglCreateContext Function Failed..!");
 		DestroyWindow(ghwnd);
 	}
-	
-	if (wglMakeCurrent(ghdc, ghrc) == FALSE) 
+
+	if (wglMakeCurrent(ghdc, ghrc) == FALSE)
 	{
 		fprintf(gpFile, "wglMakeCurrent Function Failed..!");
 		DestroyWindow(ghwnd);
@@ -262,10 +262,13 @@ void Resize(int Width, int Height)
 		Height = 1;
 	}
 	glViewport(0, 0, (GLsizei)Width, (GLsizei)Height);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
 }
 
 void Display(void)
-{	
+{
 	//Code
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -285,7 +288,7 @@ void UnInitialize(void)
 		ShowCursor(TRUE);
 	}
 
-	if(wglGetCurrentContext() == ghrc)
+	if (wglGetCurrentContext() == ghrc)
 	{
 		wglMakeCurrent(NULL, NULL);
 	}
@@ -306,6 +309,6 @@ void UnInitialize(void)
 	{
 		fclose(gpFile);
 		gpFile = NULL;
-		
+
 	}
 }
