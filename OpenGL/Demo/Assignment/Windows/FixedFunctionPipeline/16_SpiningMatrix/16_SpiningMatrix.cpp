@@ -1,9 +1,13 @@
+
 //Headers
 #include <windows.h>
 #include <stdio.h>
+#include <math.h>
 #include "NRL.h"
 #include <gl/gl.h>
-#include <gl/glu.h>
+#include <gl/GLU.h>
+
+#pragma comment(lib, "glu32")
 
 #define WIN_WIDTH 800
 #define WIN_HEIGHT 600
@@ -18,6 +22,11 @@ HWND ghwnd = NULL;
 HDC ghdc = NULL;
 HGLRC ghrc = NULL;
 FILE* gpFile = NULL;
+float iRadius = 0.5f;
+float iA = 0.0f, iB = 0.0f;
+float iUnit = 0.01;
+float fUnit = 0.01;
+float nX = 0, nY = 0;
 
 
 //WinMain()
@@ -26,7 +35,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 	//Function Declaration
 	void Display(void);
 	void Initialize(void);
-	//void Display(void);
 
 	//Varable Declarations
 	WNDCLASSEX wndclass;
@@ -60,7 +68,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 	RegisterClassEx(&wndclass);
 
 	// Create Window
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("OpenGL BlueScreen"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, 100, 100, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("Cicle : Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, (GetSystemMetrics(SM_CXSCREEN) / 2 - 400), (GetSystemMetrics(SM_CYSCREEN) / 2 - 300), 800, 600, NULL, NULL, hInstance, NULL);
 	ghwnd = hwnd;
 
 	Initialize(); //Call           
@@ -128,7 +136,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		return(0);
 
 	case WM_SIZE:
-		Resize(LOWORD(lParam), HIWORD(lParam));
+		Resize(LOWORD(lParam), HIWORD(lParam)); //LWord 
 		break;
 
 	case WM_KEYDOWN:
@@ -253,46 +261,49 @@ void Initialize(void)
 
 }
 
-void Resize(int Width, int Height)
+void Resize(int iWidth, int iHeight)
 {
 	//Code
-	if (Height == 0)
+	if (iHeight == 0)
 	{
-		Height = 1;
+		iHeight = 1;
 	}
-	glViewport(0, 0, (GLsizei)Width, (GLsizei)Height);
+	glViewport(0, 0, (GLsizei)iWidth, (GLsizei)iHeight);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0f, (GLfloat)Width / (GLfloat)Height, 0.1f, 100.0f);
+	gluPerspective(45.0f, GLfloat(iWidth) / GLfloat(iHeight), 0.1f, 100.0f); //
 }
 
 void Display(void)
 {
+
 	//Code
+	static GLfloat Angle = 0.0f;
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatef(0.0f, 0.0f, -3.0f);
 
+	glRotatef(Angle, 0.0f, 1.0f, 0.0f);
+
 	glBegin(GL_TRIANGLES);
 
 	glColor3f(1.0f, 0.0f, 0.0f);
-
 	glVertex3f(0.0f, 1.0f, 0.0f);
 
 	glColor3f(0.0f, 1.0f, 0.0f);
-
 	glVertex3f(-1.0f, -1.0f, 0.0f);
 
 	glColor3f(0.0f, 0.0f, 1.0f);
-
 	glVertex3f(1.0f, -1.0f, 0.0f);
 
 	glEnd();
 
+	Angle = Angle + 10.0f;
 
 	SwapBuffers(ghdc); //Native API for Windowing
+
 }
 
 void UnInitialize(void)

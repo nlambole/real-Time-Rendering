@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{1da3fcc9-f957-4e14-a962-541d93f189a0}</ProjectGuid>
-    <RootNamespace>Perspective</RootNamespace>
+    <ProjectGuid>{52eb269c-4b62-4356-896c-869d09d7dd00}</ProjectGuid>
+    <RootNamespace>My17RollingSquare</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -139,6 +139,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="17_RollingSquare.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <Image Include="MyIcon.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -146,9 +149,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NRL.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Perspective.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
