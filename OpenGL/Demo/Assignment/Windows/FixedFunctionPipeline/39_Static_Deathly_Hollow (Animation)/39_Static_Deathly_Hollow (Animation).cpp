@@ -4,6 +4,7 @@
 #include "NRL.h"
 #include <gl/gl.h>
 #include <gl/glu.h>
+#include <math.h>
 
 #pragma comment(lib, "glu32")
 
@@ -21,8 +22,15 @@ HDC ghdc = NULL;
 HGLRC ghrc = NULL;
 FILE* gpFile = NULL;
 
-int Width, viewP_Width;
-int Height, viewP_Height;
+int Width;
+int Height;
+
+GLfloat fRadius = 0.5f;
+GLfloat fX = 0, fY = 0;
+GLfloat Angle = 0.0f;
+GLfloat fCounter1 = 0.005f;
+GLfloat fCounter2 = 0.005f;
+GLfloat fCounter3 = 0.005f;
 
 //WinMain()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdlie, int iCmdShow)
@@ -67,7 +75,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 	Height = (GetSystemMetrics(SM_CYSCREEN) / 2 - WIN_HEIGHT / 2);
 
 	// Create Window
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("ViewPort : Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("Static_Deathly_Hollow: Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
 	ghwnd = hwnd;
 
 	Initialize(); //Call           
@@ -137,69 +145,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_SIZE:
 		Resize(LOWORD(lParam), HIWORD(lParam));
-		viewP_Width = LOWORD(lParam);
-		viewP_Height = HIWORD(lParam);
-		break;
 
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-	
+
 		case VK_ESCAPE:
 			DestroyWindow(hwnd); //Win32 API
 			break;
 
 		case 0x46:
-		//case 0x66:
+			//case 0x66:
 			ToggleFullScreen(); //Call
-			break;
-
-		case 48:
-		case VK_NUMPAD0:
-			glViewport(0, 0, (GLsizei)viewP_Width, (GLsizei)viewP_Height);
-			break;
-
-		case 49:
-		case VK_NUMPAD1:
-			glViewport(0, (GLsizei)viewP_Height /2, (GLsizei)viewP_Width /2, (GLsizei)viewP_Height /2);
-			break;
-
-		case 50:
-		case VK_NUMPAD2:
-			glViewport((GLsizei)viewP_Width / 2, (GLsizei)viewP_Height / 2, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height / 2);
-			break;
-
-		case 51:
-		case VK_NUMPAD3:
-			glViewport((GLsizei)viewP_Width / 2, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height / 2);
-			break;
-
-		case 52:
-		case VK_NUMPAD4:
-			glViewport(0, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height /2);
-			break;
-
-		case 53:
-		case VK_NUMPAD5:
-			glViewport(0, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height);
-			
-			break;
-
-		case 54:
-		case VK_NUMPAD6:
-			glViewport((GLsizei)viewP_Width / 2, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height);
-			
-			break;
-
-		case 55:
-		case VK_NUMPAD7:
-			glViewport(0, (GLsizei)viewP_Height / 2, (GLsizei)viewP_Width, (GLsizei)viewP_Height / 2);
-			
-			break;
-
-		case 56:
-		case VK_NUMPAD8:
-			glViewport(0, 0, (GLsizei)viewP_Width, (GLsizei)viewP_Height / 2);
 			break;
 
 		default:
@@ -328,28 +285,137 @@ void Resize(int width, int height)
 
 void Display(void)
 {
-	//Code
+
+	//Function Prototype
+	void Triangle(void);
+	void Circle(void);
+	void Line(void);
+
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
+	
 	glLoadIdentity();
-	glTranslatef(0.0f, 0.0f, -3.0f);
-	glScalef(1.0f, 1.0f, 0.0f);
+	Circle();
 
-	glBegin(GL_TRIANGLES);
+	glLoadIdentity();
+	Line();
 
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex3f(0.0f, 1.0f, 0.0f);
-
-	glColor3f(0.0f, 1.0f, 0.0f);
-	glVertex3f(-1.0f, -1.0f, 0.0f);
-
-	glColor3f(0.0f, 0.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 0.0f);
-
-	glEnd();
+	glLoadIdentity();
+	Triangle();
 
 
 	SwapBuffers(ghdc); //Native API for Windowing
+}
+
+void Circle(void)
+{
+	static GLfloat fX3 = 2.5f, fY3 = -2.5;
+
+	glTranslatef(fX3, fY3, -2.5f);
+	glRotatef(Angle, 0.0f, 1.0f, 0.0f);
+	glPointSize(5);
+
+	glBegin(GL_POINTS);
+	for (GLfloat i = 0; i < 360; i += 0.01f)
+	{
+		fX = fRadius * cos(i);
+		fY = fRadius * sin(i);
+		glVertex3f(fX, fY, 0.0f);
+	}
+	glEnd();
+
+	fX3 -= fCounter3;
+	fY3 += fCounter3;
+
+	if (fX3 <= 0 && fY3 >= -1)
+	{
+		fCounter3 = 0.0;
+	}
+
+	if (fX3 >= 0 && fY3 <= 0)
+	{
+		Angle = Angle + 10.0f;
+
+		if (Angle > 360.0f)
+		{
+			Angle = 0.0f;
+		}
+	}
+	else
+	{
+		Angle = 0.0;
+	}
+}
+
+void Triangle(void)
+{
+	static GLfloat fX = -2.5f, fY = -2.5f;
+
+	//Code
+	glTranslatef(fX, fY, -2.5f);
+	glRotatef(Angle, 0.0f, 1.0f, 0.0f);
+	glLineWidth(5);
+
+	glBegin(GL_LINES);
+	glVertex3f(0.0f, 1.0f, 0.0);
+	glVertex3f(-1.0f, -1.0f, 0.0);
+	glEnd();
+
+	glBegin(GL_LINES);
+	glVertex3f(0.0f, 1.0f, 0.0);
+	glVertex3f(1.0f, -1.0f, 0.0);
+	glEnd();
+
+	glBegin(GL_LINES);
+	glVertex3f(-1.0f, -1.0f, 0.0);
+	glVertex3f(1.0f, -1.0f, 0.0);
+	glEnd();
+
+	fX += fCounter1;
+	fY += fCounter1;
+
+	if (fX >= 0 && fY >= 0)
+	{
+		fCounter1 = 0.0;
+	}
+
+	if (fX <= 0 && fY <= 0)
+	{
+		Angle = Angle + 10.0f;
+
+		if (Angle > 360.0f)
+		{
+			Angle = 0.0f;
+		}
+	}
+	else
+	{
+		Angle = 0.0;
+	}
+}
+
+void Line(void)
+{
+	static GLfloat fY1 = 3.0;
+	static GLfloat fY2 = 1.0;
+
+	glLineWidth(5);
+
+	glTranslatef(0.0f, 0.0f, -2.5f);
+	//glColor3f(1.0f, 1.0f, 0.0f);
+	glBegin(GL_LINES);
+	glVertex3f(0.0f, fY1, 0.0);
+	glVertex3f(0.0f, fY2, 0.0);
+	glEnd();
+
+	fY1 -= fCounter2;
+	fY2 -= fCounter2;
+
+	if (fY1 <= 1.0 && fY2 <= -1.0)
+	{
+		fCounter2 = 0;
+	}
+
 }
 
 void UnInitialize(void)

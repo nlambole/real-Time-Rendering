@@ -21,8 +21,6 @@ HDC ghdc = NULL;
 HGLRC ghrc = NULL;
 FILE* gpFile = NULL;
 
-int Width, viewP_Width;
-int Height, viewP_Height;
 
 //WinMain()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdlie, int iCmdShow)
@@ -63,11 +61,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 	// Register Abouve Code
 	RegisterClassEx(&wndclass);
 
-	Width = (GetSystemMetrics(SM_CXSCREEN) / 2 - WIN_WIDTH / 2);
-	Height = (GetSystemMetrics(SM_CYSCREEN) / 2 - WIN_HEIGHT / 2);
-
 	// Create Window
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("ViewPort : Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("Model And Camera : Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, 100, 100, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
 	ghwnd = hwnd;
 
 	Initialize(); //Call           
@@ -109,10 +104,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
-
 	//Function Prototype
 	void ToggleFullScreen(void);
-	void Resize(int Width, int Height);
+	void Resize(int, int);
 	void UnInitialize(void);
 
 
@@ -137,69 +131,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_SIZE:
 		Resize(LOWORD(lParam), HIWORD(lParam));
-		viewP_Width = LOWORD(lParam);
-		viewP_Height = HIWORD(lParam);
 		break;
 
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-	
 		case VK_ESCAPE:
 			DestroyWindow(hwnd); //Win32 API
 			break;
 
 		case 0x46:
-		//case 0x66:
+		case 0x66:
 			ToggleFullScreen(); //Call
-			break;
-
-		case 48:
-		case VK_NUMPAD0:
-			glViewport(0, 0, (GLsizei)viewP_Width, (GLsizei)viewP_Height);
-			break;
-
-		case 49:
-		case VK_NUMPAD1:
-			glViewport(0, (GLsizei)viewP_Height /2, (GLsizei)viewP_Width /2, (GLsizei)viewP_Height /2);
-			break;
-
-		case 50:
-		case VK_NUMPAD2:
-			glViewport((GLsizei)viewP_Width / 2, (GLsizei)viewP_Height / 2, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height / 2);
-			break;
-
-		case 51:
-		case VK_NUMPAD3:
-			glViewport((GLsizei)viewP_Width / 2, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height / 2);
-			break;
-
-		case 52:
-		case VK_NUMPAD4:
-			glViewport(0, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height /2);
-			break;
-
-		case 53:
-		case VK_NUMPAD5:
-			glViewport(0, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height);
-			
-			break;
-
-		case 54:
-		case VK_NUMPAD6:
-			glViewport((GLsizei)viewP_Width / 2, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height);
-			
-			break;
-
-		case 55:
-		case VK_NUMPAD7:
-			glViewport(0, (GLsizei)viewP_Height / 2, (GLsizei)viewP_Width, (GLsizei)viewP_Height / 2);
-			
-			break;
-
-		case 56:
-		case VK_NUMPAD8:
-			glViewport(0, 0, (GLsizei)viewP_Width, (GLsizei)viewP_Height / 2);
 			break;
 
 		default:
@@ -312,18 +255,18 @@ void Initialize(void)
 
 }
 
-void Resize(int width, int height)
+void Resize(int Width, int Height)
 {
 	//Code
-	if (height == 0)
+	if (Height == 0)
 	{
-		height = 1;
+		Height = 1;
 	}
-	glViewport(0, 0, (GLsizei)width, (GLsizei)height);
+	glViewport(0, 0, (GLsizei)Width, (GLsizei)Height);	//ViewPort Transfotrmation
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
+	gluPerspective(45.0f, (GLfloat)Width / (GLfloat)Height, 0.1f, 100.0f);
 }
 
 void Display(void)
@@ -332,8 +275,9 @@ void Display(void)
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glTranslatef(0.0f, 0.0f, -3.0f);
-	glScalef(1.0f, 1.0f, 0.0f);
+	//glTranslatef(0.0f, 0.0f, -3.0f);
+	gluLookAt(0.0f, 0.0f, 3.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);   //View Transformation Must Be First
+	glScalef(0.5f, 0.5f, 0.5f);											//Model Transformation
 
 	glBegin(GL_TRIANGLES);
 

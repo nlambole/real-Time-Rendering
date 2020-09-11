@@ -1,9 +1,11 @@
+
 //Headers
 #include <windows.h>
 #include <stdio.h>
+#include <math.h>
 #include "NRL.h"
 #include <gl/gl.h>
-#include <gl/glu.h>
+#include <gl/GLU.h>
 
 #pragma comment(lib, "glu32")
 
@@ -20,9 +22,12 @@ HWND ghwnd = NULL;
 HDC ghdc = NULL;
 HGLRC ghrc = NULL;
 FILE* gpFile = NULL;
+float iRadius = 0.5f;
+float iA = 0.0f, iB = 0.0f;
+float fCounter = 0.01;
+float fUnit = 0.01;
+float nX = 0, nY = 0;
 
-int Width, viewP_Width;
-int Height, viewP_Height;
 
 //WinMain()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdlie, int iCmdShow)
@@ -30,7 +35,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 	//Function Declaration
 	void Display(void);
 	void Initialize(void);
-	//void Display(void);
 
 	//Varable Declarations
 	WNDCLASSEX wndclass;
@@ -63,11 +67,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 	// Register Abouve Code
 	RegisterClassEx(&wndclass);
 
-	Width = (GetSystemMetrics(SM_CXSCREEN) / 2 - WIN_WIDTH / 2);
-	Height = (GetSystemMetrics(SM_CYSCREEN) / 2 - WIN_HEIGHT / 2);
-
 	// Create Window
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("ViewPort : Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("Triangle Translation : Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, (GetSystemMetrics(SM_CXSCREEN) / 2 - 400), (GetSystemMetrics(SM_CYSCREEN) / 2 - 300), 800, 600, NULL, NULL, hInstance, NULL);
 	ghwnd = hwnd;
 
 	Initialize(); //Call           
@@ -109,10 +110,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
-
 	//Function Prototype
 	void ToggleFullScreen(void);
-	void Resize(int Width, int Height);
+	void Resize(int, int);
 	void UnInitialize(void);
 
 
@@ -136,70 +136,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		return(0);
 
 	case WM_SIZE:
-		Resize(LOWORD(lParam), HIWORD(lParam));
-		viewP_Width = LOWORD(lParam);
-		viewP_Height = HIWORD(lParam);
+		Resize(LOWORD(lParam), HIWORD(lParam)); //LWord 
 		break;
 
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-	
 		case VK_ESCAPE:
 			DestroyWindow(hwnd); //Win32 API
 			break;
 
 		case 0x46:
-		//case 0x66:
+		case 0x66:
 			ToggleFullScreen(); //Call
-			break;
-
-		case 48:
-		case VK_NUMPAD0:
-			glViewport(0, 0, (GLsizei)viewP_Width, (GLsizei)viewP_Height);
-			break;
-
-		case 49:
-		case VK_NUMPAD1:
-			glViewport(0, (GLsizei)viewP_Height /2, (GLsizei)viewP_Width /2, (GLsizei)viewP_Height /2);
-			break;
-
-		case 50:
-		case VK_NUMPAD2:
-			glViewport((GLsizei)viewP_Width / 2, (GLsizei)viewP_Height / 2, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height / 2);
-			break;
-
-		case 51:
-		case VK_NUMPAD3:
-			glViewport((GLsizei)viewP_Width / 2, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height / 2);
-			break;
-
-		case 52:
-		case VK_NUMPAD4:
-			glViewport(0, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height /2);
-			break;
-
-		case 53:
-		case VK_NUMPAD5:
-			glViewport(0, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height);
-			
-			break;
-
-		case 54:
-		case VK_NUMPAD6:
-			glViewport((GLsizei)viewP_Width / 2, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height);
-			
-			break;
-
-		case 55:
-		case VK_NUMPAD7:
-			glViewport(0, (GLsizei)viewP_Height / 2, (GLsizei)viewP_Width, (GLsizei)viewP_Height / 2);
-			
-			break;
-
-		case 56:
-		case VK_NUMPAD8:
-			glViewport(0, 0, (GLsizei)viewP_Width, (GLsizei)viewP_Height / 2);
 			break;
 
 		default:
@@ -312,28 +261,37 @@ void Initialize(void)
 
 }
 
-void Resize(int width, int height)
+void Resize(int iWidth, int iHeight)
 {
 	//Code
-	if (height == 0)
+	if (iHeight == 0)
 	{
-		height = 1;
+		iHeight = 1;
 	}
-	glViewport(0, 0, (GLsizei)width, (GLsizei)height);
+	glViewport(0, 0, (GLsizei)iWidth, (GLsizei)iHeight);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
+	gluPerspective(45.0f, GLfloat(iWidth) / GLfloat(iHeight), 0.1f, 100.0f); //
 }
 
 void Display(void)
 {
+
 	//Code
+	static GLfloat Angle = 0.0f;
+	static GLfloat fX = 0.0f;
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glTranslatef(0.0f, 0.0f, -3.0f);
-	glScalef(1.0f, 1.0f, 0.0f);
+	glTranslatef(fX, 0.0f, -3.0f);
+	glRotatef(Angle, 0.0f, 1.0f, 0.0f);
+
+	fX += fCounter;
+	if (fX > 2.5)
+	{
+		fX = -2.5;
+	}
 
 	glBegin(GL_TRIANGLES);
 
@@ -348,8 +306,10 @@ void Display(void)
 
 	glEnd();
 
+	Angle = Angle + 10.0f;
 
 	SwapBuffers(ghdc); //Native API for Windowing
+
 }
 
 void UnInitialize(void)

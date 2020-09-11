@@ -4,6 +4,7 @@
 #include "NRL.h"
 #include <gl/gl.h>
 #include <gl/glu.h>
+#include <math.h>
 
 #pragma comment(lib, "glu32")
 
@@ -21,8 +22,11 @@ HDC ghdc = NULL;
 HGLRC ghrc = NULL;
 FILE* gpFile = NULL;
 
-int Width, viewP_Width;
-int Height, viewP_Height;
+int Width;
+int Height;
+
+GLfloat fRadius = 0.5f;
+GLfloat fX = 0, fY = 0;
 
 //WinMain()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdlie, int iCmdShow)
@@ -67,7 +71,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 	Height = (GetSystemMetrics(SM_CYSCREEN) / 2 - WIN_HEIGHT / 2);
 
 	// Create Window
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("ViewPort : Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("Concentric Circle: Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
 	ghwnd = hwnd;
 
 	Initialize(); //Call           
@@ -137,69 +141,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_SIZE:
 		Resize(LOWORD(lParam), HIWORD(lParam));
-		viewP_Width = LOWORD(lParam);
-		viewP_Height = HIWORD(lParam);
-		break;
 
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-	
+
 		case VK_ESCAPE:
 			DestroyWindow(hwnd); //Win32 API
 			break;
 
 		case 0x46:
-		//case 0x66:
+			//case 0x66:
 			ToggleFullScreen(); //Call
-			break;
-
-		case 48:
-		case VK_NUMPAD0:
-			glViewport(0, 0, (GLsizei)viewP_Width, (GLsizei)viewP_Height);
-			break;
-
-		case 49:
-		case VK_NUMPAD1:
-			glViewport(0, (GLsizei)viewP_Height /2, (GLsizei)viewP_Width /2, (GLsizei)viewP_Height /2);
-			break;
-
-		case 50:
-		case VK_NUMPAD2:
-			glViewport((GLsizei)viewP_Width / 2, (GLsizei)viewP_Height / 2, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height / 2);
-			break;
-
-		case 51:
-		case VK_NUMPAD3:
-			glViewport((GLsizei)viewP_Width / 2, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height / 2);
-			break;
-
-		case 52:
-		case VK_NUMPAD4:
-			glViewport(0, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height /2);
-			break;
-
-		case 53:
-		case VK_NUMPAD5:
-			glViewport(0, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height);
-			
-			break;
-
-		case 54:
-		case VK_NUMPAD6:
-			glViewport((GLsizei)viewP_Width / 2, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height);
-			
-			break;
-
-		case 55:
-		case VK_NUMPAD7:
-			glViewport(0, (GLsizei)viewP_Height / 2, (GLsizei)viewP_Width, (GLsizei)viewP_Height / 2);
-			
-			break;
-
-		case 56:
-		case VK_NUMPAD8:
-			glViewport(0, 0, (GLsizei)viewP_Width, (GLsizei)viewP_Height / 2);
 			break;
 
 		default:
@@ -328,28 +281,69 @@ void Resize(int width, int height)
 
 void Display(void)
 {
+	//Function Prototype
+	void Circle(void);
+
 	//Code
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glTranslatef(0.0f, 0.0f, -3.0f);
-	glScalef(1.0f, 1.0f, 0.0f);
+	
+	glTranslatef(0.0f, 0.0f, -1.25f);
+	glColor3f(1.0f, 0.0f, 0.0f);			//R
+	Circle();
 
-	glBegin(GL_TRIANGLES);
+	glTranslatef(0.0f, 0.0f, -1.0f);
+	glColor3f(0.0f, 1.0f, 0.0f);			//G
+	Circle();
 
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex3f(0.0f, 1.0f, 0.0f);
+	glTranslatef(0.0f, 0.0f, -1.0f);
+	glColor3f(0.0f, 0.0f, 1.0f);			//B
+	Circle();
 
-	glColor3f(0.0f, 1.0f, 0.0f);
-	glVertex3f(-1.0f, -1.0f, 0.0f);
+	glTranslatef(0.0f, 0.0f, -1.0f);
+	glColor3f(0.0f, 1.0f, 1.0f);			//CYAN
+	Circle();
 
-	glColor3f(0.0f, 0.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 0.0f);
+	glTranslatef(0.0f, 0.0f, -1.0f);
+	glColor3f(1.0f, 0.0f, 1.0f);			//Magenta
+	Circle();
 
-	glEnd();
+	glTranslatef(0.0f, 0.0f, -1.0f);
+	glColor3f(1.0f, 1.0f, 0.0f);			//Yellow 
+	Circle();
 
+	glTranslatef(0.0f, 0.0f, -1.0f);
+	glColor3f(1.0f, 1.0f, 1.0f);			//White
+	Circle();
+
+	glTranslatef(0.0f, 0.0f, -1.0f);
+	glColor3f(0.5f, 0.5f, 0.5f);			//Grey
+	Circle();
+
+	glTranslatef(0.0f, 0.0f, -1.0f);
+	glColor3f(1.0f, 0.5f, 0.0f);			//Orange
+	Circle();
+
+	glTranslatef(0.0f, 0.0f, -1.0f);
+	glColor3f(0.62f, 0.125f, 0.941f);			//Purple
+	Circle();
 
 	SwapBuffers(ghdc); //Native API for Windowing
+}
+
+void Circle(void)
+{
+	glPointSize(5);
+
+	glBegin(GL_POINTS);
+	for (GLfloat i = 0; i < 360; i += 0.01f)
+	{
+		fX = fRadius * cos(i);
+		fY = fRadius * sin(i);
+		glVertex3f(fX, fY, 0.0f);
+	}
+	glEnd();
 }
 
 void UnInitialize(void)

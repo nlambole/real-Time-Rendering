@@ -62,7 +62,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 
 	// Register Abouve Code
 	RegisterClassEx(&wndclass);
-
 	Width = (GetSystemMetrics(SM_CXSCREEN) / 2 - WIN_WIDTH / 2);
 	Height = (GetSystemMetrics(SM_CYSCREEN) / 2 - WIN_HEIGHT / 2);
 
@@ -109,10 +108,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
-
 	//Function Prototype
 	void ToggleFullScreen(void);
-	void Resize(int Width, int Height);
+	void Resize(int, int);
 	void UnInitialize(void);
 
 
@@ -137,69 +135,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_SIZE:
 		Resize(LOWORD(lParam), HIWORD(lParam));
-		viewP_Width = LOWORD(lParam);
-		viewP_Height = HIWORD(lParam);
 		break;
 
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-	
 		case VK_ESCAPE:
 			DestroyWindow(hwnd); //Win32 API
 			break;
 
 		case 0x46:
-		//case 0x66:
+		case 0x66:
 			ToggleFullScreen(); //Call
-			break;
-
-		case 48:
-		case VK_NUMPAD0:
-			glViewport(0, 0, (GLsizei)viewP_Width, (GLsizei)viewP_Height);
-			break;
-
-		case 49:
-		case VK_NUMPAD1:
-			glViewport(0, (GLsizei)viewP_Height /2, (GLsizei)viewP_Width /2, (GLsizei)viewP_Height /2);
-			break;
-
-		case 50:
-		case VK_NUMPAD2:
-			glViewport((GLsizei)viewP_Width / 2, (GLsizei)viewP_Height / 2, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height / 2);
-			break;
-
-		case 51:
-		case VK_NUMPAD3:
-			glViewport((GLsizei)viewP_Width / 2, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height / 2);
-			break;
-
-		case 52:
-		case VK_NUMPAD4:
-			glViewport(0, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height /2);
-			break;
-
-		case 53:
-		case VK_NUMPAD5:
-			glViewport(0, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height);
-			
-			break;
-
-		case 54:
-		case VK_NUMPAD6:
-			glViewport((GLsizei)viewP_Width / 2, 0, (GLsizei)viewP_Width / 2, (GLsizei)viewP_Height);
-			
-			break;
-
-		case 55:
-		case VK_NUMPAD7:
-			glViewport(0, (GLsizei)viewP_Height / 2, (GLsizei)viewP_Width, (GLsizei)viewP_Height / 2);
-			
-			break;
-
-		case 56:
-		case VK_NUMPAD8:
-			glViewport(0, 0, (GLsizei)viewP_Width, (GLsizei)viewP_Height / 2);
 			break;
 
 		default:
@@ -328,12 +275,16 @@ void Resize(int width, int height)
 
 void Display(void)
 {
+	//Vatiable Declarations
+	static GLfloat tAngle = 0.0f;
+	static GLfloat rAngle = 0.0f;
+
 	//Code
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glTranslatef(0.0f, 0.0f, -3.0f);
-	glScalef(1.0f, 1.0f, 0.0f);
+	glTranslatef(-1.5f, 0.0f, -4.0f);
+	glRotatef(tAngle, 0.0f, 1.0f, 0.0f);
 
 	glBegin(GL_TRIANGLES);
 
@@ -347,6 +298,32 @@ void Display(void)
 	glVertex3f(1.0f, -1.0f, 0.0f);
 
 	glEnd();
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glTranslatef(1.5f, 0.0f, -4.0f);
+	glRotatef(rAngle, 1.0f, 0.0f, 0.0f);
+
+	glBegin(GL_QUADS);
+	glColor3f(0.0f, 0.0f, 1.0f);
+
+	glVertex3f(1.0f, 1.0f, 0.0f);
+	glVertex3f(-1.0f, 1.0f, 0.0f); 
+	glVertex3f(-1.0f, -1.0f, 0.0f);
+	glVertex3f(1.0f, -1.0f, 0.0f);
+
+	glEnd();
+	tAngle += 1.0f;
+	if (tAngle >= 360)
+	{
+		tAngle = 0.0f;
+	}
+
+	rAngle += 1.0f;
+	if (rAngle >= 360)
+	{
+		rAngle = 0.0f;
+	}
 
 
 	SwapBuffers(ghdc); //Native API for Windowing
