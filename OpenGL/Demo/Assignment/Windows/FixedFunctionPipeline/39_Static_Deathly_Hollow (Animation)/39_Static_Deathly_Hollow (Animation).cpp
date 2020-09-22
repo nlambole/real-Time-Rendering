@@ -25,12 +25,14 @@ FILE* gpFile = NULL;
 int Width;
 int Height;
 
-GLfloat fRadius = 0.5f;
+GLfloat fRadius = 0.61f;
 GLfloat fX = 0, fY = 0;
-GLfloat Angle = 0.0f;
+GLfloat Angle1 = 0.0f;
+GLfloat Angle2 = 0.0f;
 GLfloat fCounter1 = 0.005f;
 GLfloat fCounter2 = 0.005f;
-GLfloat fCounter3 = 0.005f;
+GLfloat fCounter31 = 0.005f;
+GLfloat fCounter32 = 0.005f;
 
 //WinMain()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdlie, int iCmdShow)
@@ -293,7 +295,7 @@ void Display(void)
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
-	
+
 	glLoadIdentity();
 	Circle();
 
@@ -309,10 +311,11 @@ void Display(void)
 
 void Circle(void)
 {
-	static GLfloat fX3 = 2.5f, fY3 = -2.5;
+	static GLfloat fX3 = 2.5, fY3 = -2.5;
 
+	//glTranslatef(0.0f, -0.382f, -2.5f);
 	glTranslatef(fX3, fY3, -2.5f);
-	glRotatef(Angle, 0.0f, 1.0f, 0.0f);
+	glRotatef(Angle2, 0.0f, 1.0f, 0.0f);
 	glPointSize(5);
 
 	glBegin(GL_POINTS);
@@ -324,26 +327,31 @@ void Circle(void)
 	}
 	glEnd();
 
-	fX3 -= fCounter3;
-	fY3 += fCounter3;
+	fX3 -= fCounter31;
+	fY3 += fCounter32;
 
-	if (fX3 <= 0 && fY3 >= -1)
+	if (fX3 <= 0)
 	{
-		fCounter3 = 0.0;
+		fCounter31 = 0.0;
 	}
 
-	if (fX3 >= 0 && fY3 <= 0)
+	if (fY3 >= -0.385)
 	{
-		Angle = Angle + 10.0f;
+		fCounter32 = 0.0;
+	}
 
-		if (Angle > 360.0f)
+	if (fX3 >= 0 && fY3 != -0.385)
+	{
+		Angle2 = Angle2 + 10.0f;
+
+		if (Angle2 > 360.0f)
 		{
-			Angle = 0.0f;
+			Angle2 = 0.0f;
 		}
 	}
 	else
 	{
-		Angle = 0.0;
+		Angle2 = 0.0;
 	}
 }
 
@@ -353,7 +361,7 @@ void Triangle(void)
 
 	//Code
 	glTranslatef(fX, fY, -2.5f);
-	glRotatef(Angle, 0.0f, 1.0f, 0.0f);
+	glRotatef(Angle1, 0.0f, 1.0f, 0.0f);
 	glLineWidth(5);
 
 	glBegin(GL_LINES);
@@ -381,16 +389,16 @@ void Triangle(void)
 
 	if (fX <= 0 && fY <= 0)
 	{
-		Angle = Angle + 10.0f;
+		Angle1 = Angle1 + 10.0f;
 
-		if (Angle > 360.0f)
+		if (Angle1 > 360.0f)
 		{
-			Angle = 0.0f;
+			Angle1 = 0.0f;
 		}
 	}
 	else
 	{
-		Angle = 0.0;
+		Angle1 = 0.0;
 	}
 }
 

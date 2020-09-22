@@ -11,6 +11,8 @@
 #define WIN_WIDTH 800
 #define WIN_HEIGHT 600
 
+#define Pi 3.14159
+
 //global function declarations
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 DWORD dwStyle;
@@ -27,6 +29,7 @@ int Height;
 
 GLfloat fRadius = 0.5f;
 GLfloat fX = 0, fY = 0;
+const int Circle_Point = 5000;
 
 //WinMain()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdlie, int iCmdShow)
@@ -289,43 +292,52 @@ void Display(void)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	
-	glTranslatef(0.0f, 0.0f, -1.25f);
+	glTranslatef(0.0f, 0.0f, -3.0f);
 	glColor3f(1.0f, 0.0f, 0.0f);			//R
 	Circle();
 
-	glTranslatef(0.0f, 0.0f, -1.0f);
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, -3.5f);
 	glColor3f(0.0f, 1.0f, 0.0f);			//G
 	Circle();
 
-	glTranslatef(0.0f, 0.0f, -1.0f);
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, -4.0f);
 	glColor3f(0.0f, 0.0f, 1.0f);			//B
 	Circle();
 
-	glTranslatef(0.0f, 0.0f, -1.0f);
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, -4.5f);
 	glColor3f(0.0f, 1.0f, 1.0f);			//CYAN
 	Circle();
 
-	glTranslatef(0.0f, 0.0f, -1.0f);
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, -5.0f);
 	glColor3f(1.0f, 0.0f, 1.0f);			//Magenta
 	Circle();
 
-	glTranslatef(0.0f, 0.0f, -1.0f);
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, -5.5f);
 	glColor3f(1.0f, 1.0f, 0.0f);			//Yellow 
 	Circle();
 
-	glTranslatef(0.0f, 0.0f, -1.0f);
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, -6.0f);
 	glColor3f(1.0f, 1.0f, 1.0f);			//White
 	Circle();
 
-	glTranslatef(0.0f, 0.0f, -1.0f);
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, -6.5f);
 	glColor3f(0.5f, 0.5f, 0.5f);			//Grey
 	Circle();
 
-	glTranslatef(0.0f, 0.0f, -1.0f);
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, -7.0f);
 	glColor3f(1.0f, 0.5f, 0.0f);			//Orange
 	Circle();
 
-	glTranslatef(0.0f, 0.0f, -1.0f);
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, -7.5f);
 	glColor3f(0.62f, 0.125f, 0.941f);			//Purple
 	Circle();
 
@@ -336,15 +348,34 @@ void Circle(void)
 {
 	glPointSize(5);
 
-	glBegin(GL_POINTS);
-	for (GLfloat i = 0; i < 360; i += 0.01f)
+	glBegin(GL_LINE_LOOP);
+	for (GLfloat i = 0; i < Circle_Point; i++)
 	{
-		fX = fRadius * cos(i);
-		fY = fRadius * sin(i);
-		glVertex3f(fX, fY, 0.0f);
+		GLfloat Angle = 2.0f * Pi * i / Circle_Point;
+		glVertex3f(cos(Angle), sin(Angle), 0.0f);
+		glVertex3f(0.0f, 0.0f, 0.0f);
 	}
 	glEnd();
 }
+
+/*void Circle1(void)
+{
+	glPointSize(5);
+
+	static GLfloat Angle;
+
+	glBegin(GL_LINES);
+	for (GLfloat i = 0; i < 360; i++)
+	{
+		glVertex3f(0.0f, 0.0f, 0.0f);
+
+		fX = fRadius * cos(i);
+		fY = fRadius * sin(i);
+		glVertex3f(fX, fY, 0.0f);
+		
+	}
+	glEnd();
+}*/
 
 void UnInitialize(void)
 {

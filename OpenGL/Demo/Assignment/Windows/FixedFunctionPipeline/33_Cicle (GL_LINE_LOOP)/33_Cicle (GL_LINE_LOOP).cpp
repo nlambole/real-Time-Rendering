@@ -279,7 +279,7 @@ void Resize(int width, int height)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	//gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
+	gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
 }
 
 void Display(void)
@@ -293,7 +293,7 @@ void Display(void)
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	//glTranslatef(0.0f, 0.0f, -1.5f);
+	glTranslatef(0.0f, 0.0f, -3.0f);
 	glScalef(1.0f, 1.0f, 0.0f);
 	glLineWidth(1);
 	
