@@ -5,6 +5,7 @@
 #include <gl/gl.h>
 #include <gl/glu.h>
 #include <math.h>
+#include <conio.h>
 
 #pragma comment(lib, "glu32")
 
@@ -25,8 +26,26 @@ FILE* gpFile = NULL;
 int Width;
 int Height;
 
-GLfloat fRadius = 0.5f;
-GLfloat fX = 0, fY = 0;
+GLdouble fRadius;
+GLdouble fX = 0, fY = 0;
+
+ GLfloat x1 = 0.0f;
+ GLfloat x2 = -1.0f;
+ GLfloat x3 = 1.0f;
+
+ GLfloat Y1 = 1.0f;
+ GLfloat y2 = -1.0f;
+ GLfloat y3 = -1.0f;
+
+ double a = 0, b = 0, c = 0;
+ double A = 0, B = 0, C = 0;
+
+ double Perimeter = 0;
+ double Semi_Perimeter = 0;
+
+ double X = 0, Y = 0;
+
+ double Area;
 
 //WinMain()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdlie, int iCmdShow)
@@ -71,7 +90,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 	Height = (GetSystemMetrics(SM_CYSCREEN) / 2 - WIN_HEIGHT / 2);
 
 	// Create Window
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("Static_Deathly_Hollow: Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("Static_Deathly_Hallow: Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
 	ghwnd = hwnd;
 
 	Initialize(); //Call           
@@ -283,7 +302,6 @@ void Display(void)
 {
 	//Function Prototype
 	void Triangle(void);
-	void Circle(void);
 	void Line(void);
 
 	//Code
@@ -291,47 +309,67 @@ void Display(void)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	glTranslatef(0.0f, 0.0f, -2.5f);
+	glTranslatef(0.0f, 0.0f, -3.0f);
 	Triangle();
-
 	Line();
-
-	glTranslatef(0.0f, -0.3155f, 0.435f);
-	Circle();
 	SwapBuffers(ghdc); //Native API for Windowing
 }
 
-void Circle(void)
-{
-	glPointSize(5);
-
-	glBegin(GL_POINTS);
-	for (GLfloat i = 0; i < 360; i += 0.01f)
-	{
-		fX = fRadius * cos(i);
-		fY = fRadius * sin(i);
-		glVertex3f(fX, fY, 0.0f);
-	}
-	glEnd();
-}
 
 void Triangle(void)
 {
 	glLineWidth(5);
 
 	glBegin(GL_LINES);
-	glVertex3f(0.0f, 1.0f, 0.0);
-	glVertex3f(-1.0f, -1.0f, 0.0);
+	glVertex3f(x1, Y1, 0.0f);
+	glVertex3f(x2, y2, 0.0f);
 	glEnd();
 
 	glBegin(GL_LINES);
-	glVertex3f(0.0f, 1.0f, 0.0);
-	glVertex3f(1.0f, -1.0f, 0.0);
+	glVertex3f(x2, y2, 0.0f);
+	glVertex3f(x3, y3, 0.0f);
 	glEnd();
 
 	glBegin(GL_LINES);
-	glVertex3f(-1.0f, -1.0f, 0.0);
-	glVertex3f(1.0f, -1.0f, 0.0);
+	glVertex3f(x1, Y1, 0.0f);
+	glVertex3f(x3, y3, 0.0f);
+	glEnd();
+
+	a = (x3 - x2) * (x3 - x2) + (y3 - y2) * (y3 - y2);
+	A = sqrt(a);
+
+	b = (x2 - x1) * (x2 - x1) + (y2 - Y1) * (y2 - Y1);
+	B = sqrt(b);
+
+	c = (x3 - x1) * (x3 - x1) + (y3 - Y1) * (y3 - Y1);
+	C = sqrt(c);
+
+
+	Perimeter = (A + B + C);
+	Semi_Perimeter = Perimeter / 2;
+
+
+	//Area Of Triangle
+	static double Area_Temp = Semi_Perimeter * (Semi_Perimeter - A) * (Semi_Perimeter - B) * (Semi_Perimeter - C);
+	Area = sqrt(Area_Temp);
+
+	//Centre of Incircle
+	X = (A * x1 + B * x2 + C * x3) / Perimeter;
+
+	Y = (A * Y1 + B * y2 + C * y3) / Perimeter;
+
+	//Radius for Incircle 
+	fRadius = Area / Semi_Perimeter;
+
+	glPointSize(3);
+	glBegin(GL_POINTS);
+	for (GLfloat i = 0; i < 360; i += 0.01f)
+	{
+		glColor3f(1.0f, 0.5f, 0.0f);
+		fX = X + fRadius * cos(i);
+		fY = Y + fRadius * sin(i);
+		glVertex3f(fX, fY, 0.0f);
+	}
 	glEnd();
 }
 

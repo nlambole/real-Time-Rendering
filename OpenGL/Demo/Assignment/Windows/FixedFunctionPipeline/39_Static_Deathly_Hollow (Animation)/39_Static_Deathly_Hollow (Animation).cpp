@@ -5,6 +5,7 @@
 #include <gl/gl.h>
 #include <gl/glu.h>
 #include <math.h>
+#include <conio.h>
 
 #pragma comment(lib, "glu32")
 
@@ -25,14 +26,35 @@ FILE* gpFile = NULL;
 int Width;
 int Height;
 
-GLfloat fRadius = 0.61f;
+GLdouble fRadius;
 GLfloat fX = 0, fY = 0;
 GLfloat Angle1 = 0.0f;
 GLfloat Angle2 = 0.0f;
+
+GLfloat Angle_Counter = 5.0;
+
 GLfloat fCounter1 = 0.005f;
 GLfloat fCounter2 = 0.005f;
 GLfloat fCounter31 = 0.005f;
 GLfloat fCounter32 = 0.005f;
+
+GLfloat x1 = 0.0f;
+GLfloat x2 = -1.0f;
+GLfloat x3 = 1.0f;
+
+GLfloat Y1 = 1.0f;
+GLfloat y2 = -1.0f;
+GLfloat y3 = -1.0f;
+
+double a = 0, b = 0, c = 0;
+double A = 0, B = 0, C = 0;
+
+double Perimeter = 0;
+double Semi_Perimeter = 0;
+
+double X = 0, Y = 0;
+
+double Area;
 
 //WinMain()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdlie, int iCmdShow)
@@ -287,143 +309,142 @@ void Resize(int width, int height)
 
 void Display(void)
 {
-
 	//Function Prototype
 	void Triangle(void);
-	void Circle(void);
 	void Line(void);
+	void InCircle(void);
 
+	//Code
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	Triangle();
 
 	glLoadIdentity();
-	Circle();
+	InCircle();
 
 	glLoadIdentity();
 	Line();
 
-	glLoadIdentity();
-	Triangle();
-
-
 	SwapBuffers(ghdc); //Native API for Windowing
 }
 
-void Circle(void)
+
+void Triangle(void)
 {
-	static GLfloat fX3 = 2.5, fY3 = -2.5;
+	static float Triangle_fX = -2.5f;
+	static float Triangle_fY = -2.5f;
 
-	//glTranslatef(0.0f, -0.382f, -2.5f);
-	glTranslatef(fX3, fY3, -2.5f);
+	glTranslatef(Triangle_fX, Triangle_fY, -3.0f);
 	glRotatef(Angle2, 0.0f, 1.0f, 0.0f);
-	glPointSize(5);
 
+	glLineWidth(5);
+
+	glBegin(GL_LINES);
+	glVertex3f(x1, Y1, 0.0f);
+	glVertex3f(x2, y2, 0.0f);
+	glEnd();
+
+	glBegin(GL_LINES);
+	glVertex3f(x2, y2, 0.0f);
+	glVertex3f(x3, y3, 0.0f);
+	glEnd();
+
+	glBegin(GL_LINES);
+	glVertex3f(x1, Y1, 0.0f);
+	glVertex3f(x3, y3, 0.0f);
+	glEnd();
+
+	a = (x3 - x2) * (x3 - x2) + (y3 - y2) * (y3 - y2);
+	A = sqrt(a);
+
+	b = (x2 - x1) * (x2 - x1) + (y2 - Y1) * (y2 - Y1);
+	B = sqrt(b);
+
+	c = (x3 - x1) * (x3 - x1) + (y3 - Y1) * (y3 - Y1);
+	C = sqrt(c);
+
+
+	Perimeter = (A + B + C);
+	Semi_Perimeter = Perimeter / 2;
+
+
+	//Area Of Triangle
+	static double Area_Temp = Semi_Perimeter * (Semi_Perimeter - A) * (Semi_Perimeter - B) * (Semi_Perimeter - C);
+	Area = sqrt(Area_Temp);
+
+	//Centre of Incircle
+	X = (A * x1 + B * x2 + C * x3) / Perimeter;
+
+	Y = (A * Y1 + B * y2 + C * y3) / Perimeter;
+
+	//Radius for Incircle 
+	fRadius = Area / Semi_Perimeter;
+
+	Triangle_fX += fCounter1;
+	Triangle_fY += fCounter2;
+	Angle2 += Angle_Counter;
+
+	if (Triangle_fX > 0 && Triangle_fY)
+	{
+		Triangle_fX = 0.0f;
+		Triangle_fY = 0.0f;
+		Angle2 = 0;
+	}
+}
+
+void InCircle(void)
+{
+	static float InCircle_fX = 2.5f;
+	static float InCircle_fY = -2.5f;
+	
+
+	glTranslatef(InCircle_fX, InCircle_fY, -3.0f);
+	glRotatef(Angle1, 0.0f, 1.0f, 0.0f);
+
+	glPointSize(3);
 	glBegin(GL_POINTS);
 	for (GLfloat i = 0; i < 360; i += 0.01f)
 	{
-		fX = fRadius * cos(i);
-		fY = fRadius * sin(i);
+		glColor3f(1.0f, 0.5f, 0.0f);
+		fX = X + fRadius * cos(i);
+		fY = Y + fRadius * sin(i);
 		glVertex3f(fX, fY, 0.0f);
 	}
 	glEnd();
 
-	fX3 -= fCounter31;
-	fY3 += fCounter32;
+	InCircle_fX -= fCounter1;
+	InCircle_fY += fCounter1;
+	Angle1 += Angle_Counter;
 
-	if (fX3 <= 0)
+	if (InCircle_fX < 0)
 	{
-		fCounter31 = 0.0;
+		InCircle_fX = 0.0f;
 	}
 
-	if (fY3 >= -0.385)
+	if (InCircle_fY > 0)
 	{
-		fCounter32 = 0.0;
-	}
-
-	if (fX3 >= 0 && fY3 != -0.385)
-	{
-		Angle2 = Angle2 + 10.0f;
-
-		if (Angle2 > 360.0f)
-		{
-			Angle2 = 0.0f;
-		}
-	}
-	else
-	{
-		Angle2 = 0.0;
-	}
-}
-
-void Triangle(void)
-{
-	static GLfloat fX = -2.5f, fY = -2.5f;
-
-	//Code
-	glTranslatef(fX, fY, -2.5f);
-	glRotatef(Angle1, 0.0f, 1.0f, 0.0f);
-	glLineWidth(5);
-
-	glBegin(GL_LINES);
-	glVertex3f(0.0f, 1.0f, 0.0);
-	glVertex3f(-1.0f, -1.0f, 0.0);
-	glEnd();
-
-	glBegin(GL_LINES);
-	glVertex3f(0.0f, 1.0f, 0.0);
-	glVertex3f(1.0f, -1.0f, 0.0);
-	glEnd();
-
-	glBegin(GL_LINES);
-	glVertex3f(-1.0f, -1.0f, 0.0);
-	glVertex3f(1.0f, -1.0f, 0.0);
-	glEnd();
-
-	fX += fCounter1;
-	fY += fCounter1;
-
-	if (fX >= 0 && fY >= 0)
-	{
-		fCounter1 = 0.0;
-	}
-
-	if (fX <= 0 && fY <= 0)
-	{
-		Angle1 = Angle1 + 10.0f;
-
-		if (Angle1 > 360.0f)
-		{
-			Angle1 = 0.0f;
-		}
-	}
-	else
-	{
-		Angle1 = 0.0;
+		InCircle_fY = 0.0f;
+		Angle1 = 0;
 	}
 }
 
 void Line(void)
 {
-	static GLfloat fY1 = 3.0;
-	static GLfloat fY2 = 1.0;
+	static float Line_fx = 2.5f;
 
-	glLineWidth(5);
-
-	glTranslatef(0.0f, 0.0f, -2.5f);
-	//glColor3f(1.0f, 1.0f, 0.0f);
-	glBegin(GL_LINES);
-	glVertex3f(0.0f, fY1, 0.0);
-	glVertex3f(0.0f, fY2, 0.0);
-	glEnd();
-
-	fY1 -= fCounter2;
-	fY2 -= fCounter2;
-
-	if (fY1 <= 1.0 && fY2 <= -1.0)
+	glTranslatef(0.0f, Line_fx, -3.0f);
+	
+	Line_fx -= fCounter1;
+	if (Line_fx < 0)
 	{
-		fCounter2 = 0;
+		Line_fx = 0.0f;
 	}
 
+	glBegin(GL_LINES);
+	glVertex3f(0.0f, 1.0f, 0.0);
+	glVertex3f(0.0f, -1.0f, 0.0);
+	glEnd();
 }
 
 void UnInitialize(void)
