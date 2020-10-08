@@ -338,7 +338,7 @@ void Display(void)
 	if (fCount_D11 == 0)
 	{
 		glLoadIdentity();
-		glTranslatef(1.15f, Y_I, -6.0f);
+		glTranslatef(1.3f, Y_I, -6.0f);
 		I();
 		Y_I += fCount_YI;
 		if (Y_I >= -0.005)
@@ -636,22 +636,42 @@ void D(void)
 
 	glBegin(GL_QUADS);
 	glColor3f(x1, y1, z1); //1
-	glVertex3f(0.5f, 0.7f, 0.0f);
+	glVertex3f(0.4f, 0.7f, 0.0f);
 	glVertex3f(-0.5f, 0.7f, 0.0f);
 
 	glColor3f(x2, y2, z2); //2
 	glVertex3f(-0.5f, 0.5f, 0.0f);
-	glVertex3f(0.5f, 0.5f, 0.0f);
+	glVertex3f(0.3f, 0.5f, 0.0f);
+	glEnd();
+
+	glBegin(GL_QUADS);
+	glColor3f(x1, y1, z1); //1#Orange Curve
+	glVertex3f(0.4f, 0.7f, 0.0f);
+
+	glColor3f(x2, y2, z2); //2#OrangeCurve
+	glVertex3f(0.3f, 0.5f, 0.0f);
+	glVertex3f(0.45f, 0.4f, 0.0f);
+	glVertex3f(0.65f, 0.5f, 0.0f);
 	glEnd();
 
 	glBegin(GL_QUADS);
 	glColor3f(x3, y3, z3);  //3
-	glVertex3f(0.5f, -0.5f, 0.0f);
+	glVertex3f(0.3f, -0.5f, 0.0f);
 	glVertex3f(-0.5f, -0.5f, 0.0f);
 
 	glColor3f(x4, y4, z4); //4
 	glVertex3f(-0.5f, -0.7f, 0.0f);
-	glVertex3f(0.5f, -0.7f, 0.0f);
+	glVertex3f(0.4f, -0.7f, 0.0f);
+	glEnd();
+
+	glBegin(GL_QUADS);
+	glColor3f(x4, y4, z4); //3#Green Curve
+	glVertex3f(0.4f, -0.7f, 0.0f);
+
+	glColor3f(x3, y3, z3);//4#Green
+	glVertex3f(0.3f, -0.5f, 0.0f);
+	glVertex3f(0.45f, -0.4f, 0.0f);
+	glVertex3f(0.65f, -0.5f, 0.0f);
 	glEnd();
 
 
@@ -659,12 +679,12 @@ void D(void)
 
 	glBegin(GL_QUADS);
 	glColor3f(x2, y2, z2); //2
-	glVertex3f(0.5f, 0.5f, 0.0f);
-	glVertex3f(0.3f, 0.5f, 0.0f);
+	glVertex3f(0.45f, 0.4f, 0.0f);
+	glVertex3f(0.65f, 0.5f, 0.0f);
 	
 	glColor3f(x3, y3, z3);  //3
-	glVertex3f(0.3f, -0.5f, 0.0f);
-	glVertex3f(0.5f, -0.5f, 0.0f);
+	glVertex3f(0.65f, -0.5f, 0.0f);
+	glVertex3f(0.45f, -0.4f, 0.0f);
 	glEnd();
 
 	//--------------------------------Right |
@@ -830,7 +850,7 @@ void A(void)
 	glEnd();
 
 	X_A -= fCount_XA;
-	if (X_A < 2.33)
+	if (X_A < 2.45)
 	{
 		fCount_XA = 0;
 	}

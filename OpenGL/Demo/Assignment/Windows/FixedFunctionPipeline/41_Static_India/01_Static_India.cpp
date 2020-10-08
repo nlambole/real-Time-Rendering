@@ -81,7 +81,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 
 	Initialize(); //Call           
 
-	ShowWindow(hwnd, iCmdShow);
+	ShowWindow(hwnd, SW_MAXIMIZE);
 	SetForegroundWindow(hwnd);
 	SetFocus(hwnd);
 
@@ -306,7 +306,7 @@ void Display(void)
 	D();
 	
 	glLoadIdentity();
-	glTranslatef(1.15f, 0.0f, -6.0f);
+	glTranslatef(1.3f, 0.0f, -6.0f);
 	I();
 	
 	glLoadIdentity();
@@ -463,35 +463,54 @@ void D(void)
 
 	glBegin(GL_QUADS);
 	glColor3f(1.0f, 0.6f, 0.2f); //1
-	glVertex3f(0.5f, 0.7f, 0.0f);
+	glVertex3f(0.4f, 0.7f, 0.0f);
 	glVertex3f(-0.5f, 0.7f, 0.0f);
 
 	glColor3f(1.0f, 0.72f, 0.45f); //2
 	glVertex3f(-0.5f, 0.5f, 0.0f);
-	glVertex3f(0.5f, 0.5f, 0.0f);
+	glVertex3f(0.3f, 0.5f, 0.0f);
+	glEnd();
+
+	glBegin(GL_QUADS);
+	glColor3f(1.0f, 0.6f, 0.2f); //1#Orange Curve
+	glVertex3f(0.4f, 0.7f, 0.0f);
+	
+	glColor3f(1.0f, 0.72f, 0.45f); //2#OrangeCurve
+	glVertex3f(0.3f, 0.5f, 0.0f);
+	glVertex3f(0.45f, 0.4f, 0.0f);
+	glVertex3f(0.65f, 0.5f, 0.0f);
 	glEnd();
 
 	glBegin(GL_QUADS);
 	glColor3f(0.59f, 0.92f, 0.054f);  //3
-	glVertex3f(0.5f, -0.5f, 0.0f);
+	glVertex3f(0.3f, -0.5f, 0.0f);
 	glVertex3f(-0.5f, -0.5f, 0.0f);
 
 	glColor3f(0.074f, 0.533f, 0.0313f); //4
 	glVertex3f(-0.5f, -0.7f, 0.0f);
-	glVertex3f(0.5f, -0.7f, 0.0f);
+	glVertex3f(0.4f, -0.7f, 0.0f);
 	glEnd();
 
+	glBegin(GL_QUADS);
+	glColor3f(0.074f, 0.533f, 0.0313f); //1#Green Curve
+	glVertex3f(0.4f, -0.7f, 0.0f);
+
+	glColor3f(0.59f, 0.92f, 0.054f);//2#Green
+	glVertex3f(0.3f, -0.5f, 0.0f);
+	glVertex3f(0.45f,-0.4f, 0.0f);
+	glVertex3f(0.65f, -0.5f, 0.0f);
+	glEnd();
 
 	//-----------------------------Left |
 
 	glBegin(GL_QUADS);
 	glColor3f(1.0f, 0.72f, 0.45f); //2
-	glVertex3f(0.5f, 0.5f, 0.0f);
-	glVertex3f(0.3f, 0.5f, 0.0f);
+	glVertex3f(0.45f, 0.4f, 0.0f);
+	glVertex3f(0.65f, 0.5f, 0.0f);
 	
 	glColor3f(0.59f, 0.92f, 0.054f);  //3
-	glVertex3f(0.3f, -0.5f, 0.0f);
-	glVertex3f(0.5f, -0.5f, 0.0f);
+	glVertex3f(0.65f, -0.5f, 0.0f);
+	glVertex3f(0.45f, -0.4f, 0.0f);
 	glEnd();
 
 	//--------------------------------Right |
@@ -511,7 +530,7 @@ void D(void)
 void A(void)
 {
 
-	glTranslatef(2.3f, 0.0f, -6.0f);
+	glTranslatef(2.45f, 0.0f, -6.0f);
 	glScalef(0.95f, 1.0f, 0.0f);
 
 	
