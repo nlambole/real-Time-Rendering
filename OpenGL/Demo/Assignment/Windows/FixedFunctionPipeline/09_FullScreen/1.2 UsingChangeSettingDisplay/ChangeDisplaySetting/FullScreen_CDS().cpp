@@ -107,37 +107,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	return(DefWindowProc(hwnd, iMsg, wParam, lParam));
 }
 
-/*
-void GetCurrentSettings(void)
-{
-	DEVMODE dm = { 0 };
-	LONG ret = 0; 
-	DWORD i = 0;
-
-
-	dm.dmSize = sizeof(DEVMODE);
-	dm.dmDriverExtra = 0;
-
-	while (EnumDisplaySettings(0, i, &dm))
-	{
-		if (dm.dmPelsHeight == GetSystemMetrics(SM_CXSCREEN) && dm.dmPelsWidth == GetSystemMetrics(SM_CYSCREEN) && dm.dmBitsPerPel == 32)
-		{
-			ret = 1;
-			break;
-		}
-		i++;
-	}
-
-	if (ret)
-	{
-		dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL;
-		ret = ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
-		if (ret != DISP_CHANGE_SUCCESSFUL) 
-		{
-			return;
-		}
-	}
-}*/
 
 void GetCurrentSettings(void)
 {

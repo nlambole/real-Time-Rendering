@@ -19,8 +19,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 	MSG msg;
 	TCHAR szAppName[] = TEXT("FullScreen Window");
 
-
-
 	// code
 	// Initialization of WNDCLASSEX
 	wndclass.cbSize = sizeof(WNDCLASSEX);
@@ -127,7 +125,7 @@ void ToggleFullScreen(void)
 		SetWindowLong(ghwnd, GWL_STYLE, (dwStyle | WS_OVERLAPPEDWINDOW));
 		SetWindowPlacement(ghwnd, &wpPrev);
 		SetWindowPos(ghwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER | SWP_FRAMECHANGED );
-
+		
 		ShowCursor(TRUE);
 		gbFullscreen = false;
 
