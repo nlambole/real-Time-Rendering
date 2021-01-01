@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="01_Lights_On_Cube_and_Pyramid.cpp">
+    <ClCompile Include="01_Lights_On_Cube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

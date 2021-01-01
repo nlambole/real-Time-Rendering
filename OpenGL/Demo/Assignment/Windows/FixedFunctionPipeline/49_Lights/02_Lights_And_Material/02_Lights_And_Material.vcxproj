@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{c2242f9b-c3c8-483b-8e17-c6521c7d956c}</ProjectGuid>
-    <RootNamespace>My01LightsOnCubeandPyramid</RootNamespace>
+    <ProjectGuid>{69c17755-3f60-4ae7-9845-e5d5c528437c}</ProjectGuid>
+    <RootNamespace>My02LightsAndMaterial</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -139,7 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="01_Lights_On_Cube_and_Pyramid.cpp" />
+    <ClCompile Include="02_Lights_And_Material.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="MyIcon.ico" />
