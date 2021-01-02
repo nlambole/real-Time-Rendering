@@ -410,11 +410,11 @@ void Display(void)
 
 	gluLookAt(0.0f, 0.0f, 3.0f, CenterX, CenterY, CenterZ, 0.0f, 1.0f, 0.0f);
 
-	//CenterX -= 0.0001f;
+	CenterX -= 0.001f;
 	//CenterZ -= 0.001f;
 	// _________________________________________________________________________Bird
 
-	/*glRotatef((GLfloat)iBody, 0.0f, 1.0f, 0.0f);
+	glRotatef((GLfloat)iBody, 0.0f, 1.0f, 0.0f);
 	glRotatef((GLfloat)iSholder, 0.0f, 0.0f, 1.0f);
 	glRotatef((GLfloat)iElbow, 1.0f, 0.0f, 0.0f);
 	glPushMatrix();
@@ -444,7 +444,7 @@ void Display(void)
 	Wings();
 	glScalef(1.0f, 0.0f, -1.0f);
 	Wings();
-	glPopMatrix();*/
+	glPopMatrix();
 
 	// _________________________________________________________________________Humanoid
 	
