@@ -27,10 +27,15 @@ int Width;
 int Height;
 
 //GLfloat Y = 0.0f
-
 GLfloat iBody = 0.0f;
+
+//Hand
 GLfloat iSholder = 0.0f;
 GLfloat iElbow = 0.0f;
+
+//Leg
+GLfloat iThigh = 0.0f;
+GLfloat iLeg = 0.0f;
 
 
 //Cylinder
@@ -200,8 +205,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CHAR:
 		switch (wParam)
 		{
-		case 'L':
-		case 'l':
+		case 'n':
+		case 'N':
 			if (bLight == false)
 			{
 				glEnable(GL_LIGHTING);
@@ -237,6 +242,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 		case 'e':
 			iElbow = iElbow - 3 % 360;
+			break;
+
+		case 'T':
+			iThigh = iThigh + 3 % 360;
+			break;
+
+		case 't':
+			iThigh = iThigh - 3 % 360;
+			break;
+
+		case 'L':
+			iLeg = iLeg + 3 % 360;
+			break;
+
+		case 'l':
+			iLeg = iLeg - 3 % 360;
 			break;
 
 		default:
@@ -393,11 +414,11 @@ void Resize(int width, int height)
 void Display(void)
 {
 	//Variable Declarations
-	static GLfloat CenterX = 2.0f;
+	static GLfloat CenterX = 0.0f;
 	static GLfloat CenterY = 0.0f;
 	static GLfloat CenterZ = 0.0f;
 	static GLfloat Angle = 0.0f;
-	static GLfloat fP = 0.0001f;
+	static GLfloat fP = 0.001f;
 
 	//Function Declarastion
 	void Humanoid(void);
@@ -408,16 +429,72 @@ void Display(void)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	gluLookAt(0.0f, 0.0f, 3.0f, CenterX, CenterY, CenterZ, 0.0f, 1.0f, 0.0f);
+	gluLookAt(0.0f, 0.0f, 4.0f, CenterX, CenterY, CenterZ, 0.0f, 1.0f, 0.0f);
 
-	CenterX -= 0.001f;
+	//CenterX -= 0.0001f;
 	//CenterZ -= 0.001f;
-	// _________________________________________________________________________Bird
+
+	//_______________________________________________________________________Tree
+
+	/*glPushMatrix();
 
 	glRotatef((GLfloat)iBody, 0.0f, 1.0f, 0.0f);
-	glRotatef((GLfloat)iSholder, 0.0f, 0.0f, 1.0f);
-	glRotatef((GLfloat)iElbow, 1.0f, 0.0f, 0.0f);
+	glTranslatef(0.0f, 0.0f, -1.0f);
 	glPushMatrix();
+	
+	glRotatef(90, 1.0f, 0.0f, 0.0f);
+	quadric = gluNewQuadric();
+	gluCylinder(quadric, 0.075F, 0.1f, 1.4f, 30, 30);
+	glPopMatrix();
+
+	//XY
+	glTranslatef(0.0f, 0.0f, 0.0f);
+	glPushMatrix();
+
+	glRotatef(90, -1.0f, 1.0, 0.0f);
+	quadric = gluNewQuadric();
+	gluCylinder(quadric, 0.08F, 0.05f, 1.0f, 30, 30);
+	glPopMatrix();
+
+	//-XY
+	glTranslatef(0.0f, 0.0f, 0.0f);
+	glPushMatrix();
+
+	glRotatef(-90, 1.0f, 1.0, 0.0f);
+	quadric = gluNewQuadric();
+	gluCylinder(quadric, 0.08F, 0.05f, 1.0f, 30, 30);
+
+	glTranslatef(1.0f, -1.0f, 0.0f);
+	glPushMatrix();
+
+	glRotatef(90, 1.0f, .0, 0.0f);
+	glScalef(0.6f, 0.2f, 0.2f);
+	quadric = gluNewQuadric();
+	gluSphere(quadric, 1.0f, 30, 30);
+	glPopMatrix();
+	/*glBegin(GL_POINTS);
+	glPointSize(10);
+	glVertex3f(1.0f, 1.0f, 0.0f);
+	glEnd();*/
+
+
+	/*glPopMatrix();
+
+	//x=0Z
+	glTranslatef(0.0f, 0.0f, 0.0f);
+	glPushMatrix();
+
+	glRotatef(-40, 1.0f, 0.0, 0.0f);
+	quadric = gluNewQuadric();
+	gluCylinder(quadric, 0.08F, 0.05f, 1.0f, 30, 30);
+	glPopMatrix();
+
+
+	glPopMatrix();*/
+
+	// _________________________________________________________________________Bird
+
+	/*glPushMatrix();
 	glRotatef(90, 0.0f, 1.0f, 0.0f);
 	glScalef(0.055f, 0.055f, 0.25f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -444,10 +521,189 @@ void Display(void)
 	Wings();
 	glScalef(1.0f, 0.0f, -1.0f);
 	Wings();
+	glPopMatrix();*/
+
+	/*// _________________________________________________________________________Humanoid
+	//DONE
+	glPushMatrix();
+
+	//---------------------------------------------Torso
+	glRotatef((GLfloat)iBody, 0.0f, 1.0f, 0.0f);
+	//glRotatef((GLfloat)iSholder, 1.0f, 0.0f,0.0f);
+    //glRotatef((GLfloat)iElbow, 0.0f, 1.0f,0.0f);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glTranslatef(0.0f, 0.40f, 0.0f);
+	glPushMatrix();
+
+	glScalef(1.0f, 1.0f, 0.6);
+	glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+	glColor3f(1.0f, 1.0, 0.0f);
+	quadric = gluNewQuadric();
+	gluCylinder(quadric, 0.33, 0.25, 0.65f, 30, 30);
+
+	glRotatef(-90.0f, 0.0f, 0.0f, 1.0f);
+	glScalef(0.60f, 0.80f, 0.4);
+	glColor3f(1.0f, 1.0, 0.0f);
+	quadric = gluNewQuadric();
+	gluSphere(quadric, 0.5f, 15, 5);
+
 	glPopMatrix();
 
-	// _________________________________________________________________________Humanoid
+	//-------------------------------------------------Neck
+	glTranslatef(0.0f, 0.225, 0.0f);
+	glPushMatrix();
+
+	glRotatef(90.0f, 1.0f, 0.0f, .0f);
+	glColor3f(1.0f, .0, 0.0f);
+	quadric = gluNewQuadric();
+	gluCylinder(quadric, 0.08, 0.08, 0.07f, 30, 30);
+	glPopMatrix();
+
+
+	//-------------------------------------------------Head
+	glTranslatef(0.0f, 0.125f, 0.0f);
+	glPushMatrix();
+
+	glRotatef(90.0f, 1.0f, 0.0f, .0f);
+	glColor3f(1.0f, 0.5, 0.0f);
+	quadric = gluNewQuadric();
+	gluSphere(quadric, 0.15, 10, 10);
+	glPopMatrix();
+
 	
+
+	//-------------------------------------------------Left Hand
+	glTranslatef(0.3, -0.325f, 0.0f);
+	glPushMatrix();
+
+	glRotatef((GLfloat)iSholder, 0.0f, 0.0f, 1.0f);
+	glTranslatef(0.220f, 0.0f, 0.0f);
+	glPushMatrix();
+
+	glScalef(1.6f, 0.5f, 0.5f);
+	glColor3f(0.5f, 0.35f, 0.05f);
+	quadric = gluNewQuadric();
+	gluSphere(quadric, 0.15f, 10.0f, 10.0f);
+	glPopMatrix();
+
+	glTranslatef(0.2f, 0.0f, 0.0f);
+	quadric = gluNewQuadric();
+	gluSphere(quadric, 0.07f, 10.0f, 10.0f);
+
+	glRotatef((GLfloat)iElbow, 0.0f, 0.0f, 1.0f);
+	glTranslatef(0.2f, 0.0f, 0.0f);
+	glPushMatrix();
+
+	glScalef(1.8f, 0.5f, 0.5f);
+	glColor3f(0.5, 0.35f, 0.05f);
+	quadric = gluNewQuadric();
+	gluSphere(quadric, 0.15f, 10, 10);
+	glPopMatrix();
+
+	glPopMatrix();
+
+	////---------------------------------------------------Right Hand(Humanoid cha)
+	glTranslatef(-0.58, 0.0f, 0.0f);
+	glPushMatrix();
+
+	glRotatef(-(GLfloat)iSholder, 0.0f, 0.0f, 1.0f);
+	glTranslatef(-0.220f, 0.0f, 0.0f);
+	glPushMatrix();
+
+	glScalef(1.6f, 0.5f, 0.5f);
+	glColor3f(0.5f, 0.35f, 0.05f);
+	quadric = gluNewQuadric();
+	gluSphere(quadric, 0.15f, 10.0f, 10.0f);
+	glPopMatrix();
+
+	glTranslatef(-0.2f, 0.0f, 0.0f);
+	quadric = gluNewQuadric();
+	gluSphere(quadric, 0.07f, 10.0f, 10.0f);
+
+	glRotatef(-(GLfloat)iElbow, 0.0f, 0.0f, 1.0f);
+	glTranslatef(-0.2f, 0.0f, 0.0f);
+	glPushMatrix();
+
+	glScalef(1.8f, 0.5f, 0.5f);
+	glColor3f(0.5, 0.35f, 0.05f);
+	quadric = gluNewQuadric();
+	gluSphere(quadric, 0.15f, 10, 10);
+	glPopMatrix();
+
+	glPopMatrix();
+
+	//------------------------------------------------------Left Leg
+	
+	glTranslatef(0.175, -0.5f, 0.0f);
+	glPushMatrix();
+
+	glRotatef((GLfloat)iThigh, 1.0f, 0.0f, 0.0f);
+	glTranslatef(0.0f, -0.220f, 0.0f);
+	glPushMatrix();
+
+	glScalef(0.5f, 1.6f , 0.5f);
+	glColor3f(0.5f, 0.35f, 0.05f);
+	quadric = gluNewQuadric();
+	gluSphere(quadric, 0.15f, 10.0f, 10.0f);
+	glPopMatrix();
+
+	glTranslatef( 0.0f, -0.2f, 0.0f);
+	quadric = gluNewQuadric();
+	gluSphere(quadric, 0.07f, 10.0f, 10.0f);
+
+	glRotatef((GLfloat)iLeg, 1.0f, 0.0f, 0.0f);
+	glTranslatef( 0.0f, -0.2f, 0.0f);
+	glPushMatrix();
+
+	glScalef( 0.5f, 1.8f, 0.5f);
+	glColor3f(0.5, 0.35f, 0.05f);
+	quadric = gluNewQuadric();
+	gluSphere(quadric, 0.15f, 10, 10);
+	glPopMatrix();
+
+	glPopMatrix();
+
+	//-------------------------------------------------- Right Leg
+	glTranslatef(0.225, 0.0f, 0.0f);
+	glPushMatrix();
+
+	glRotatef((GLfloat)iThigh, 1.0f, 0.0f, 0.0f);
+	glTranslatef(0.0f, -0.220f, 0.0f);
+	glPushMatrix();
+
+	glScalef(0.5f, 1.6f , 0.5f);
+	glColor3f(0.5f, 0.35f, 0.05f);
+	quadric = gluNewQuadric();
+	gluSphere(quadric, 0.15f, 10.0f, 10.0f);
+	glPopMatrix();
+
+	glTranslatef( 0.0f, -0.2f, 0.0f);
+	quadric = gluNewQuadric();
+	gluSphere(quadric, 0.07f, 10.0f, 10.0f);
+
+	glRotatef((GLfloat)iLeg, 1.0f, 0.0f, 0.0f);
+	glTranslatef( 0.0f, -0.2f, 0.0f);
+	glPushMatrix();
+
+	glScalef( 0.5f, 1.8f, 0.5f);
+	glColor3f(0.5, 0.35f, 0.05f);
+	quadric = gluNewQuadric();
+	gluSphere(quadric, 0.15f, 10, 10);
+	glPopMatrix();
+
+	glPopMatrix();
+	
+
+	glPopMatrix();
+
+//glBegin(GL_QUADS);
+//glColor3f(0.0f, 1.0f, 0.0f);
+//glVertex3f(2.0f, 0.0f, 0.0f);
+//glVertex3f(-2.0f, 0.0f, 0.0f);
+//glVertex3f(-4.0f, -4.0f, 0.0f);
+//glVertex3f(4.0f, -4.0f, 0.0f);
+//glEnd();*/
+
 	SwapBuffers(ghdc); //Native API for Windowing
 }
 
@@ -495,41 +751,6 @@ void Wings(void)
 
 }
 
-
-//void Humanoid(void)
-//{
-//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//
-//	quadric = gluNewQuadric();
-//
-//	//Sphere
-//	gluSphere(quadric, 0.2f, 30, 30); //Normals are calculated by gluSphere itself;
-//
-//}
-
-/*static GLfloat Angle = 0.0f;
-
-
-	glBegin(GL_LINE_LOOP);
-	for (GLint i = 0; i < Circle_Points; i++)
-	{
-		Angle = 2 * Pi * i / Circle_Points;
-
-		X = fRadius_Cake * (GLfloat)cos(Angle);
-		Y = fRadius_Cake * (GLfloat)sin(Angle);
-
-		X1 = fRadius_Cake * (GLfloat)cos(Angle);
-		Y1 = fRadius_Cake * (GLfloat)sin(Angle);
-
-		glColor3f(0.701f, 0.462f, 0.274f);
-		glVertex3f(X, 1.0f, Y);
-
-		glColor3f(0.4823f, 0.247f, 0.0f);
-		glVertex3f(X1, 0.0f, Y1);
-		glVertex3f(0.0f, 0.0f, 0.0f);
-		glVertex3f(0.0f, 1.0f, 0.0f);
-	}
-	glEnd();*/
 
 void UnInitialize(void)
 {

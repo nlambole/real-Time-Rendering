@@ -4,8 +4,6 @@
 #include "NRL.h"
 #include <gl/gl.h>
 #include <gl/glu.h>
-#include <math.h>
-#include <conio.h>
 
 #pragma comment(lib, "glu32")
 
@@ -26,20 +24,39 @@ FILE* gpFile = NULL;
 int Width;
 int Height;
 
-int iDay = 0;
-int iYear = 0;
-int iHour = 0;
+//************* Light / Texure*************
+bool bLight = true;
+
+//Gaurow Shading
+/*//Light Arrays
+GLfloat LightAmbient[] = { 0.0f, 0.0f, 0.0f, 1.0f }; 
+GLfloat LightDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f }; 
+GLfloat LightSpecular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat LightPosition[] = { 100.0f, 100.0f, 100.0f, 1.0f }; 
+
+//Material Arrays
+GLfloat MaterialAmbient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+GLfloat MaterialDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat MaterialSpecular[] = { 1.0f, 1.0f , 1.0f, 1.0f };
+GLfloat MaterialShininess = 50.0f;*/
+
+
+//Albedo
+//Light Arrays
+GLfloat LightAmbient[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+GLfloat LightDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat LightSpecular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat LightPosition[] = { 100.0f, 100.0f, 100.0f, 1.0f };
+
+//Material Arrays
+GLfloat MaterialAmbient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+GLfloat MaterialDiffuse[] = { 0.5f, 0.2f, 0.7f, 1.0f };
+GLfloat MaterialSpecular[] = { 0.7f, 0.7f , 0.7f, 1.0f };
+GLfloat MaterialShininess = 128.0f;
 
 GLUquadric* quadric = NULL;
 
- GLfloat x1 = 0.0f;
- GLfloat x2 = -1.0f;
- GLfloat x3 = 1.0f;
-
- GLfloat Y1 = 1.0f;
- GLfloat y2 = -1.0f;
- GLfloat y3 = -1.0f;
-
+//*******************************************
 
 //WinMain()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdlie, int iCmdShow)
@@ -84,7 +101,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 	Height = (GetSystemMetrics(SM_CYSCREEN) / 2 - WIN_HEIGHT / 2);
 
 	// Create Window
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("Solar System : Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("Light & Material : Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
 	ghwnd = hwnd;
 
 	Initialize(); //Call           
@@ -154,17 +171,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_SIZE:
 		Resize(LOWORD(lParam), HIWORD(lParam));
+		
+		break;
 
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-
+	
 		case VK_ESCAPE:
 			DestroyWindow(hwnd); //Win32 API
 			break;
 
 		case 0x46:
-			//case 0x66:
+		//case 0x66:
 			ToggleFullScreen(); //Call
 			break;
 
@@ -176,31 +195,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CHAR:
 		switch (wParam)
 		{
-		case 'D':
-			iDay = (iDay + 6) % 360;
-			break;
-		case 'd':
-			iDay = (iDay - 6) % 360;
-			break;
-		case 'Y':
-			iYear = (iYear + 3) % 360;
-			break;
-		case 'y':
-			iYear = (iYear - 3) % 360;
-			break;
-
-		case 'H':
-			iHour = (iHour + 3) % 360;
-			break;
-
-		case 'h':
-			iHour = (iHour - 3) % 360;
+		case 'L':
+		case 'l':
+			if (bLight == false)
+			{
+				glEnable(GL_LIGHTING);
+				bLight = true;
+			}
+			else
+			{
+				glDisable(GL_LIGHTING);
+				bLight = false;
+			}
 			break;
 
 		default:
 			break;
 		}
-
 		break;
 
 	case WM_CLOSE:
@@ -299,11 +310,8 @@ void Initialize(void)
 		DestroyWindow(ghwnd);
 	}
 
-	//SetClearColour
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-	// Depth Function
+	//************************************_DEPTH_*********************************************
+	//Depth Function
 	glClearDepth(1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
@@ -311,6 +319,26 @@ void Initialize(void)
 	//Accessory Function
 	glShadeModel(GL_SMOOTH);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); //Distortion Correction
+	//****************************************************************************************
+
+	//SetClearColour
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+	//_________________________________________*LIGHT*_________________________________________
+	//Light 
+	glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient); //f - float. v- Vector
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
+	glLightfv(GL_LIGHT1, GL_POSITION, LightPosition);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, LightSpecular);
+
+	//Material
+	glMaterialfv(GL_FRONT, GL_AMBIENT, MaterialAmbient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, MaterialDiffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular);
+	glMaterialf(GL_FRONT, GL_SHININESS, MaterialShininess); 
+
+	glEnable(GL_LIGHT1); //Enable Light
+	//__________________________________________________________________________________________
 
 	//WarmUp Resize Call
 	Resize(WIN_WIDTH, WIN_HEIGHT);
@@ -337,42 +365,13 @@ void Display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-
-	gluLookAt(0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-
-	//Sun
-	glPushMatrix();
-	glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); 
-	glColor3f(1.0f, 1.0, 0.0f);
+	glTranslatef(0.0f, 0.0f, -0.55f);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	 
 	quadric = gluNewQuadric();
-	gluSphere(quadric, 0.75, 30, 30);
-	glPopMatrix();
-	glPushMatrix();
 
-	//Earth
-	glRotatef((GLfloat)iYear, 0.0f, 1.0f, 0.0f);
-	glTranslatef(2.5f, 0.0f, 0.0f);
-	glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
-	glRotatef((GLfloat)iDay, 0.0f, 0.0f, 1.0f); 
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glColor3f(0.4f, 0.9f, 1.0f);
-	quadric = gluNewQuadric();
-	gluSphere(quadric, 0.2, 20, 20); 
-
-	glPushMatrix();
-
-	glRotatef((GLfloat)iDay, 0.0f, 0.0f, 1.0f);
-	glTranslatef(1.0f, 0.0f, 0.0f);
-	glRotatef((GLfloat)iHour, 0.0f, 0.0f, 1.0f);
-	
-	
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glColor3f(1.0f, 1.0f, 1.0f);
-	quadric = gluNewQuadric();
-	gluSphere(quadric, 0.1, 20, 20);
-	glPopMatrix();
+	//Sphere
+	gluSphere(quadric, 0.2f, 30.0f, 30.0f); //Normals are calculated by gluSphere itself;
 
 	SwapBuffers(ghdc); //Native API for Windowing
 }
@@ -409,10 +408,14 @@ void UnInitialize(void)
 
 	if (gpFile)
 	{
-		gluDeleteQuadric(quadric);
 		fclose(gpFile);
 		gpFile = NULL;
 
 	}
-	
+
+	if (quadric)
+	{
+		gluDeleteQuadric(quadric);
+		quadric = NULL;
+	}
 }

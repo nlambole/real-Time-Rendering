@@ -1,16 +1,19 @@
 //Headers
 #include <windows.h>
 #include <stdio.h>
+
 #include "NRL.h"
+#include "Teapot.h"
+
 #include <gl/gl.h>
 #include <gl/glu.h>
 #include <math.h>
-#include <conio.h>
 
 #pragma comment(lib, "glu32")
 
 #define WIN_WIDTH 800
 #define WIN_HEIGHT 600
+#define Pi 3.14159f
 
 //global function declarations
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -26,20 +29,24 @@ FILE* gpFile = NULL;
 int Width;
 int Height;
 
-int iDay = 0;
-int iYear = 0;
-int iHour = 0;
+//Lights
+bool bLight = true;
 
-GLUquadric* quadric = NULL;
+//Arrays
+GLfloat LightAmbient[] = { 0.5f, 0.5f, 0.5f, 1.0f }; //Grey Light
+GLfloat LightDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f }; //White Light 
+GLfloat LightPosition[] = { 0.0f, 0.0f, 2.0f, 1.0f }; //Light From Front // Positional Light (4th Parameter is 1.0f)
 
- GLfloat x1 = 0.0f;
- GLfloat x2 = -1.0f;
- GLfloat x3 = 1.0f;
+//Image Loading / Texure
+GLuint Marble;
 
- GLfloat Y1 = 1.0f;
- GLfloat y2 = -1.0f;
- GLfloat y3 = -1.0f;
+//Transformation
+GLfloat Angle = 45.0f;
+GLfloat fCounter = 0.5f;
 
+GLfloat X = 1.0f;
+GLfloat Y = 1.0f;
+GLfloat Z = 1.0f;
 
 //WinMain()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdlie, int iCmdShow)
@@ -84,7 +91,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 	Height = (GetSystemMetrics(SM_CYSCREEN) / 2 - WIN_HEIGHT / 2);
 
 	// Create Window
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("Solar System : Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("Texture on Pyramid: Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
 	ghwnd = hwnd;
 
 	Initialize(); //Call           
@@ -176,31 +183,49 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CHAR:
 		switch (wParam)
 		{
-		case 'D':
-			iDay = (iDay + 6) % 360;
-			break;
-		case 'd':
-			iDay = (iDay - 6) % 360;
-			break;
-		case 'Y':
-			iYear = (iYear + 3) % 360;
-			break;
-		case 'y':
-			iYear = (iYear - 3) % 360;
-			break;
-
-		case 'H':
-			iHour = (iHour + 3) % 360;
+		case 'L':
+		case 'l':
+			if (bLight == false)
+			{
+				glEnable(GL_LIGHTING);
+				bLight = true;
+			}
+			else
+			{
+				glDisable(GL_LIGHTING);
+				bLight = false;
+			}
 			break;
 
-		case 'h':
-			iHour = (iHour - 3) % 360;
+		case 'T':
+		case 't':
+			if ()
+			{
+
+			}
+			else
+			{
+
+			}
 			break;
+		case 'A':
+		case 'a':
+			if ()
+			{
+
+			}
+			else
+			{
+
+			}
+			break;
+
+			//Texture Enable
+			glEnable(GL_TEXTURE_2D); //for 2D Image
 
 		default:
 			break;
 		}
-
 		break;
 
 	case WM_CLOSE:
@@ -253,6 +278,7 @@ void Initialize(void)
 {
 	//Function Declaration
 	void Resize(int, int);
+	bool loadGLTexture(GLuint*, TCHAR[]);
 
 	// Variable Declaration
 	PIXELFORMATDESCRIPTOR pfd;
@@ -272,6 +298,7 @@ void Initialize(void)
 	pfd.cGreenBits = 8;
 	pfd.cBlueBits = 8;
 	pfd.cAlphaBits = 8;
+	pfd.cDepthBits = 32;
 
 	iPixelFormatIndex = ChoosePixelFormat(ghdc, &pfd);
 	if (iPixelFormatIndex == 0)
@@ -299,11 +326,8 @@ void Initialize(void)
 		DestroyWindow(ghwnd);
 	}
 
-	//SetClearColour
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-	// Depth Function
+	//************************************_DEPTH_*********************************************
+		//Depth Function
 	glClearDepth(1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
@@ -312,9 +336,59 @@ void Initialize(void)
 	glShadeModel(GL_SMOOTH);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); //Distortion Correction
 
+	//************************************_TEXTURE_********************************************
+	//Loading Texture
+	loadGLTexture(&Marble, MAKEINTRESOURCE(MARBLE));
+	
+
+	//*****************************************************************************************
+
+	//SetClearColour
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+	//************************************_LIGHT_*********************************************
+	//Light 
+	glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient); //f - float. v- Vector
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
+	glLightfv(GL_LIGHT1, GL_POSITION, LightPosition);
+
+	glEnable(GL_LIGHT1); //Enable Light
+
 	//WarmUp Resize Call
 	Resize(WIN_WIDTH, WIN_HEIGHT);
 
+}
+
+bool loadGLTexture(GLuint* Texture, TCHAR resourceID[]) //User Define Function
+{
+	//Variable Declarations
+	bool bResult = false;
+	HBITMAP	hBitmap = NULL;
+	BITMAP BMP;
+
+	//Code
+	hBitmap = (HBITMAP)LoadImage(GetModuleHandle(NULL), resourceID, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION); //DIB(Device Independent Bitmap)
+	if (hBitmap != NULL)
+	{
+		bResult = true;
+		GetObject(hBitmap, sizeof(BMP), &BMP);
+
+		//Now, OpenGL Starts Texturing....
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4); //4(R,G,B,A)
+		glGenTextures(1, Texture);
+		glBindTexture(GL_TEXTURE_2D, *Texture); //GL_TEXTURE_2D(Gattu CPU _| GPU)
+
+		//Setting Texture Paratmeters
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //MAG(Magnification 256x256) 
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); //MIN(Minification 16x16)
+
+		//Pushing Data
+		gluBuild2DMipmaps(GL_TEXTURE_2D, 3, BMP.bmWidth, BMP.bmHeight, GL_BGR_EXT, GL_UNSIGNED_BYTE, BMP.bmBits);
+
+		DeleteObject(hBitmap);
+	}
+
+	return bResult;
 }
 
 void Resize(int width, int height)
@@ -333,53 +407,87 @@ void Resize(int width, int height)
 
 void Display(void)
 {
+	//Function Prototype
+	void Pyramid(void);
+
 	//Code
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, -4.0f);
+	glRotatef(Angle, 0.0f, Y, 0.0f);
 
-	gluLookAt(0.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	glBindTexture(GL_TEXTURE_2D, Marble); //Draw Texture from Image
 
-	//Sun
-	glPushMatrix();
-	glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); 
-	glColor3f(1.0f, 1.0, 0.0f);
-	quadric = gluNewQuadric();
-	gluSphere(quadric, 0.75, 30, 30);
-	glPopMatrix();
-	glPushMatrix();
+	Pyramid();
 
-	//Earth
-	glRotatef((GLfloat)iYear, 0.0f, 1.0f, 0.0f);
-	glTranslatef(2.5f, 0.0f, 0.0f);
-	glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
-	glRotatef((GLfloat)iDay, 0.0f, 0.0f, 1.0f); 
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glColor3f(0.4f, 0.9f, 1.0f);
-	quadric = gluNewQuadric();
-	gluSphere(quadric, 0.2, 20, 20); 
-
-	glPushMatrix();
-
-	glRotatef((GLfloat)iDay, 0.0f, 0.0f, 1.0f);
-	glTranslatef(1.0f, 0.0f, 0.0f);
-	glRotatef((GLfloat)iHour, 0.0f, 0.0f, 1.0f);
-	
-	
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glColor3f(1.0f, 1.0f, 1.0f);
-	quadric = gluNewQuadric();
-	gluSphere(quadric, 0.1, 20, 20);
-	glPopMatrix();
-
+	Angle += fCounter;
 	SwapBuffers(ghdc); //Native API for Windowing
+}
+
+void Pyramid(void)
+{
+	glBegin(GL_TRIANGLES);		//Front
+	glTexCoord2f(0.5f, 1.0f);
+	glNormal3f(0.0f, 0.447214f, 0.894427f);
+	glVertex3f(0.0f, 1.0f, 0.0f);
+
+	glTexCoord2f(0.0f, 0.0f);
+	glNormal3f(0.0f, 0.447214f, 0.894427f);
+	glVertex3f(-1.0f, -1.0f, 1.0f);
+
+	glTexCoord2f(1.0f, 0.0f);
+	glNormal3f(0.0f, 0.447214f, 0.894427f);
+	glVertex3f(1.0f, -1.0f, 1.0f);
+	glEnd();
+
+	glBegin(GL_TRIANGLES);//Back
+	glTexCoord2f(0.5f, 1.0f);
+	glNormal3f(0.0f, 0.447214f, -0.894427f);
+	glVertex3f(0.0f, 1.0f, 0.0f);
+
+	glTexCoord2f(1.0f, 0.0f);
+	glNormal3f(0.0f, 0.447214f, -0.894427f);
+	glVertex3f(1.0f, -1.0f, -1.0f);
+
+	glTexCoord2f(0.0f, 0.0f);
+	glNormal3f(0.0f, 0.447214f, -0.894427f);
+	glVertex3f(-1.0f, -1.0f, -1.0f);
+	glEnd();
+
+	glBegin(GL_TRIANGLES);//Right
+	glTexCoord2f(0.5f, 1.0f);
+	glNormal3f(0.894427f, 0.447214f, 0.0f);
+	glVertex3f(0.0f, 1.0f, 0.0f);
+
+	glTexCoord2f(1.0f, 0.0f);
+	glNormal3f(0.894427f, 0.447214f, 0.0f);
+	glVertex3f(1.0f, -1.0f, 1.0f);
+
+	glTexCoord2f(0.0f, 0.0f);
+	glNormal3f(0.894427f, 0.447214f, 0.0f);
+	glVertex3f(1.0f, -1.0f, -1.0f);
+	glEnd();
+
+	glBegin(GL_TRIANGLES);//Left
+	glTexCoord2f(0.5f, 1.0f);
+	glNormal3f(-0.894427f, 0.447214f, 0.0f);
+	glVertex3f(0.0f, 1.0f, 0.0f);
+
+	glTexCoord2f(0.0f, 0.0f);
+	glNormal3f(-0.894427f, 0.447214f, 0.0f);
+	glVertex3f(-1.0f, -1.0f, -1.0f);
+
+	glTexCoord2f(1.0f, 0.0f);
+	glNormal3f(-0.894427f, 0.447214f, 0.0f);
+	glVertex3f(-1.0f, -1.0f, 1.0f);
+	glEnd();
 }
 
 void UnInitialize(void)
 {
 	//Code
+
 	if (gbFullscreen == true)
 	{
 		dwStyle = GetWindowLong(ghwnd, GWL_STYLE);
@@ -409,10 +517,8 @@ void UnInitialize(void)
 
 	if (gpFile)
 	{
-		gluDeleteQuadric(quadric);
 		fclose(gpFile);
 		gpFile = NULL;
 
 	}
-	
 }
