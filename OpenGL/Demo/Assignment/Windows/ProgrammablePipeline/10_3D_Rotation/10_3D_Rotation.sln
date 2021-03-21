@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "10_3D_Rotation", "10_3D_Rotation.vcxproj", "{B70046FC-C8A8-4F6B-A327-818BBF051181}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B70046FC-C8A8-4F6B-A327-818BBF051181}.Debug|x64.ActiveCfg = Debug|x64
+		{B70046FC-C8A8-4F6B-A327-818BBF051181}.Debug|x64.Build.0 = Debug|x64
+		{B70046FC-C8A8-4F6B-A327-818BBF051181}.Debug|x86.ActiveCfg = Debug|Win32
+		{B70046FC-C8A8-4F6B-A327-818BBF051181}.Debug|x86.Build.0 = Debug|Win32
+		{B70046FC-C8A8-4F6B-A327-818BBF051181}.Release|x64.ActiveCfg = Release|x64
+		{B70046FC-C8A8-4F6B-A327-818BBF051181}.Release|x64.Build.0 = Release|x64
+		{B70046FC-C8A8-4F6B-A327-818BBF051181}.Release|x86.ActiveCfg = Release|Win32
+		{B70046FC-C8A8-4F6B-A327-818BBF051181}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0114F332-BF91-40D3-87ED-B3343A71867B}
+	EndGlobalSection
+EndGlobal

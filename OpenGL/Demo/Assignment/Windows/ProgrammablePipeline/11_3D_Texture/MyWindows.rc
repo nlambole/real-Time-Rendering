@@ -1,0 +1,5 @@
+#include "NRL.h"
+
+MYICON ICON MyIcon.ico
+STONE_BITMAP BITMAP Stone.bmp
+VIJAY_KUNDALI BITMAP Vijay_Kundali.bmp
