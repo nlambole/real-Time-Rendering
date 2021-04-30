@@ -1,18 +1,17 @@
 //Headers
 #include <windows.h>
 #include <stdio.h>
-
+#include <gl/GL.h>
+#include <gl/GLU.h>
+#include <math.h>
 #include "NRL.h"
 #include "Teapot.h"
 
-#include <gl/gl.h>
-#include <gl/glu.h>
-#include <math.h>
 
 #pragma comment(lib, "glu32")
 
 #define WIN_WIDTH 800
-#define WIN_HEIGHT 600
+#define WIN_HEIGHT 600  
 #define Pi 3.14159f
 
 //global function declarations
@@ -30,23 +29,27 @@ int Width;
 int Height;
 
 //Lights
-bool bLight = true;
+bool bLight = false;
+bool bAnimation = false;
+bool bTexture = false;
 
 //Arrays
-GLfloat LightAmbient[] = { 0.5f, 0.5f, 0.5f, 1.0f }; //Grey Light
+GLfloat LightAmbient[] = { 0.0f, 0.0f, 0.5f, 1.0f }; //Grey Light
 GLfloat LightDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f }; //White Light 
-GLfloat LightPosition[] = { 0.0f, 0.0f, 2.0f, 1.0f }; //Light From Front // Positional Light (4th Parameter is 1.0f)
+GLfloat LightSpecular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat LightPosition[] = { 100.0f, 100.0f, 1.0f, 1.0f }; //Light From Front // Positional Light (4th Parameter is 1.0f)
+
+//Material Arrays
+GLfloat MaterialAmbient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+GLfloat MaterialDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat MaterialSpecular[] = { 1.0f, 1.0f , 1.0f, 1.0f };
+GLfloat MaterialShininess = 50.0f;
 
 //Image Loading / Texure
 GLuint Marble;
 
 //Transformation
-GLfloat Angle = 45.0f;
-GLfloat fCounter = 0.5f;
-
-GLfloat X = 1.0f;
-GLfloat Y = 1.0f;
-GLfloat Z = 1.0f;
+GLfloat Angle = 0.0f;
 
 //WinMain()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdlie, int iCmdShow)
@@ -54,6 +57,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 	//Function Declaration
 	void Display(void);
 	void Initialize(void);
+	void Update(void);
 	//void Display(void);
 
 	//Varable Declarations
@@ -91,11 +95,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 	Height = (GetSystemMetrics(SM_CYSCREEN) / 2 - WIN_HEIGHT / 2);
 
 	// Create Window
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("Texture on Pyramid: Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW, szAppName, TEXT("Teapot: Nandlal Lambole"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
 	ghwnd = hwnd;
 
-	Initialize(); //Call           
-
+	Initialize(); //Call     
+	
 	ShowWindow(hwnd, iCmdShow);
 	SetForegroundWindow(hwnd);
 	SetFocus(hwnd);
@@ -123,6 +127,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdli
 
 				//Here You Should Call Display Function For OpenGL Rendering
 				Display(); //Call Display
+
+				if (bAnimation == true)
+				{
+					Update();
+				}
 			}
 
 		}
@@ -199,29 +208,29 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 		case 'T':
 		case 't':
-			if ()
+			if (bTexture == false)
 			{
-
+				glEnable(GL_TEXTURE_2D); 
+				bTexture = true;
 			}
 			else
 			{
-
+				glDisable(GL_TEXTURE_2D);
+				bTexture = false;
 			}
 			break;
+
 		case 'A':
 		case 'a':
-			if ()
+			if (bAnimation == false)
 			{
-
+				bAnimation = true;
 			}
 			else
 			{
-
+				bAnimation = false;
 			}
 			break;
-
-			//Texture Enable
-			glEnable(GL_TEXTURE_2D); //for 2D Image
 
 		default:
 			break;
@@ -326,8 +335,9 @@ void Initialize(void)
 		DestroyWindow(ghwnd);
 	}
 
+	
 	//************************************_DEPTH_*********************************************
-		//Depth Function
+	//Depth Function
 	glClearDepth(1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
@@ -340,7 +350,6 @@ void Initialize(void)
 	//Loading Texture
 	loadGLTexture(&Marble, MAKEINTRESOURCE(MARBLE));
 	
-
 	//*****************************************************************************************
 
 	//SetClearColour
@@ -348,12 +357,20 @@ void Initialize(void)
 
 	//************************************_LIGHT_*********************************************
 	//Light 
-	glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient); //f - float. v- Vector
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
-	glLightfv(GL_LIGHT1, GL_POSITION, LightPosition);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient); //f - float. v- Vector
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, LightSpecular);
+	glLightfv(GL_LIGHT0, GL_POSITION, LightPosition);
 
-	glEnable(GL_LIGHT1); //Enable Light
+	glEnable(GL_LIGHT0); //Enable Light
 
+	//Material
+	glMaterialfv(GL_FRONT, GL_AMBIENT, MaterialAmbient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, MaterialDiffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, MaterialSpecular);
+	glMaterialf(GL_FRONT, GL_SHININESS, MaterialShininess);
+
+	
 	//WarmUp Resize Call
 	Resize(WIN_WIDTH, WIN_HEIGHT);
 
@@ -408,80 +425,49 @@ void Resize(int width, int height)
 void Display(void)
 {
 	//Function Prototype
-	void Pyramid(void);
+	void Teapot(void);
 
 	//Code
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glTranslatef(0.0f, 0.0f, -4.0f);
-	glRotatef(Angle, 0.0f, Y, 0.0f);
+	glTranslatef(0.0f, 0.0f, -1.0f);
+	glRotatef(Angle, 0.0f, 1.0f, 0.0f);
 
 	glBindTexture(GL_TEXTURE_2D, Marble); //Draw Texture from Image
 
-	Pyramid();
+	Teapot();
 
-	Angle += fCounter;
 	SwapBuffers(ghdc); //Native API for Windowing
 }
 
-void Pyramid(void)
+void Teapot(void)
 {
-	glBegin(GL_TRIANGLES);		//Front
-	glTexCoord2f(0.5f, 1.0f);
-	glNormal3f(0.0f, 0.447214f, 0.894427f);
-	glVertex3f(0.0f, 1.0f, 0.0f);
+	glBegin(GL_TRIANGLES);		
+	for (int i = 0; i < (sizeof(face_indicies) / sizeof(face_indicies[0])); i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			int vi = face_indicies[i][j];
+			int ni = face_indicies[i][j + 3];
+			int ti = face_indicies[i][j + 6];
 
-	glTexCoord2f(0.0f, 0.0f);
-	glNormal3f(0.0f, 0.447214f, 0.894427f);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
+			glNormal3f(normals[ni][0], normals[ni][1], normals[ni][2]);
+			glTexCoord2f(textures[ti][0], textures[ti][1]);
+			glVertex3f(vertices[vi][0], vertices[vi][1], vertices[vi][2]);
 
-	glTexCoord2f(1.0f, 0.0f);
-	glNormal3f(0.0f, 0.447214f, 0.894427f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
+		}
+	}
 	glEnd();
+}
 
-	glBegin(GL_TRIANGLES);//Back
-	glTexCoord2f(0.5f, 1.0f);
-	glNormal3f(0.0f, 0.447214f, -0.894427f);
-	glVertex3f(0.0f, 1.0f, 0.0f);
-
-	glTexCoord2f(1.0f, 0.0f);
-	glNormal3f(0.0f, 0.447214f, -0.894427f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
-
-	glTexCoord2f(0.0f, 0.0f);
-	glNormal3f(0.0f, 0.447214f, -0.894427f);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-	glEnd();
-
-	glBegin(GL_TRIANGLES);//Right
-	glTexCoord2f(0.5f, 1.0f);
-	glNormal3f(0.894427f, 0.447214f, 0.0f);
-	glVertex3f(0.0f, 1.0f, 0.0f);
-
-	glTexCoord2f(1.0f, 0.0f);
-	glNormal3f(0.894427f, 0.447214f, 0.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
-
-	glTexCoord2f(0.0f, 0.0f);
-	glNormal3f(0.894427f, 0.447214f, 0.0f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
-	glEnd();
-
-	glBegin(GL_TRIANGLES);//Left
-	glTexCoord2f(0.5f, 1.0f);
-	glNormal3f(-0.894427f, 0.447214f, 0.0f);
-	glVertex3f(0.0f, 1.0f, 0.0f);
-
-	glTexCoord2f(0.0f, 0.0f);
-	glNormal3f(-0.894427f, 0.447214f, 0.0f);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-
-	glTexCoord2f(1.0f, 0.0f);
-	glNormal3f(-0.894427f, 0.447214f, 0.0f);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
-	glEnd();
+void Update(void)
+{
+	Angle += 1.0f;
+	if (Angle >= 360.0f)
+	{
+		Angle = 0.0f;
+	}
 }
 
 void UnInitialize(void)

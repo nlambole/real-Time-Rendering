@@ -139,9 +139,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="03_Two_Lights_On_Pyramid.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="marble.bmp" />
     <Image Include="MyIcon.ico" />
   </ItemGroup>
@@ -151,6 +148,9 @@
   <ItemGroup>
     <ClInclude Include="NRL.h" />
     <ClInclude Include="Teapot.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="05_TeaPot.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

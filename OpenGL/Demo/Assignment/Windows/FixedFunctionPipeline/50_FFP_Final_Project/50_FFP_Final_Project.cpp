@@ -1,10 +1,11 @@
 //Headers
 #include <windows.h>
 #include <stdio.h>
-#include "NRL.h"
 #include <gl/gl.h>
 #include <gl/glu.h>
 #include <math.h>
+#include "NRL.h"
+
 
 #pragma comment(lib, "glu32")
 
@@ -523,7 +524,7 @@ void Display(void)
 	Wings();
 	glPopMatrix();*/
 
-	/*// _________________________________________________________________________Humanoid
+	// _________________________________________________________________________Humanoid
 	//DONE
 	glPushMatrix();
 
@@ -702,7 +703,7 @@ void Display(void)
 //glVertex3f(-2.0f, 0.0f, 0.0f);
 //glVertex3f(-4.0f, -4.0f, 0.0f);
 //glVertex3f(4.0f, -4.0f, 0.0f);
-//glEnd();*/
+//glEnd();
 
 	SwapBuffers(ghdc); //Native API for Windowing
 }
