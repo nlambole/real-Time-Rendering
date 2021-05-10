@@ -7,17 +7,17 @@
 
 #include "vmath.h"
 #include "NRL.h" // Icon
+#include "Sphere.h"
 
 #pragma comment(lib, "glew32.lib")
 #pragma comment(lib, "opengl32.lib")
+#pragma comment(lib,"Sphere.lib")
+
 
 #define WIN_WIDTH 800
 #define WIN_HEIGHT 600
 int Width;
 int Height;
-
-int PressedDigit = 0;
-GLfloat squareTexCords[8] = { 0.0f };
 
 using namespace vmath;
 
@@ -26,7 +26,7 @@ enum //PCNT
 	NRL_ATTRIBUTE_POSITION = 0,
 	NRL_ATTRIBUTE_COLOR,
 	NRL_ATTRIBUTE_NORMAL,
-	NRL_ATTRIBUTE_TEXCORD,
+	NRL_ATTRIBUTE_TEXTURE,
 };
 
 // Prototype of WndPRoc() declared GLobally
@@ -46,32 +46,57 @@ bool gbActiveWindow = false;
 bool gbEscapeKeyIsPressed = false;
 bool gbFullscreen = false;
 
+bool bLight = false;
+
+GLuint modelMatrixUniform;
+GLuint viewMatrixUniform;
+GLuint projectionMatrixUniform;
+GLuint mvpMatrixUniform;
+GLuint LKeyPressedUniform;
+
+//Light
+GLuint LaUniform;
+GLuint LdUniform;
+GLuint LsUniform;
+GLuint lightPositionUniform;
+
+//Material
+GLuint KaUniform; //Diffuse component of Material
+GLuint KdUniform;
+GLuint KsUniform;
+GLfloat materialShininessUniform;
+
 GLuint VertexShaderObject;
 GLuint FragmentShaderObject;
 GLuint ShaderProgramObject;
 
-//GLuint vao; // Vartex Array Object
-//GLuint vbo; // Vertex Buffer object
+GLuint vao_Sphere; // Vartex Array Object
 
-GLuint mvpMatrixUniform;
-GLuint textureSamplerUniform;
+GLuint vbo_Sphere;
+GLuint vbo_Sphere_Position;
+GLuint vbo_Sphere_Normals;
+GLuint vbo_Sphere_Element;
 
-GLuint vbo_Color; // MultiColour
-
-// Rotation
-GLfloat Angle_Pyramid = 0.0f;
-GLfloat Angle_Cube = 0.0f;
-
-//Square
-GLuint vao_Square;
-
-GLuint vbo_Square;
-GLuint vbo_Texture_Square;
 
 mat4 PerspectiveProjectionMatrix;
 
-//***Image Loading / Texure
-GLuint Smiley_Texture;
+//Shpere Vertex Position
+float sphere_vertices[1146];
+float sphere_normals[1146];
+float sphere_textures[764];
+unsigned short sphere_elements[2280];
+
+GLfloat lightAmbient[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+GLfloat lightDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat lightSpecular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat lightPosition[] = { 100.0f, 100.0f, 100.0f, 1.0f };
+
+GLfloat materialAmbient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+GLfloat materialDiffuse[] = { 0.5f, 0.2f, 0.7f, 1.0f };
+GLfloat materialSpecular[] = { 0.7f, 0.7f , 0.7f, 1.0f };
+GLfloat materialShininesss = 128.0f;
+GLuint gNumVertices;
+GLuint gNumElements;
 
 //main()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
@@ -80,7 +105,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	void Initialize(void);
 	void UnInitialize(void);
 	void Display(void);
-	void Update(void);
 
 	//Variable Declarations
 	WNDCLASSEX wndclass;
@@ -109,7 +133,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 	wndclass.hInstance = hInstance;
 	wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	wndclass.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(MYICON));
-	wndclass.hCursor = LoadCursor(hInstance, MAKEINTRESOURCE(MYICON));
+	wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wndclass.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(MYICON));
 	wndclass.lpfnWndProc = WndProc;
 	wndclass.lpszClassName = szClassName;
@@ -124,7 +148,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 
 	// Create Window
 	//Parallel to glutInitWindowSize(), glutInitWindowPosition() and glutCreateWindow() all Threee together
-	hwnd = CreateWindow(szClassName, TEXT("Tweaked Smiley : Nandlal Lambole"), WS_OVERLAPPEDWINDOW, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindow(szClassName, TEXT("perVertex on Sphere : Nandlal Lambole"), WS_OVERLAPPEDWINDOW, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
 
 	ghwnd = hwnd;
 
@@ -153,7 +177,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 		{
 			//Rendering FUnction
 			Display(); //Call Display
-			Update();
+
 			if (gbActiveWindow == true)
 			{
 				//Continuation to glutLeaveMainLoop();
@@ -204,30 +228,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				gbEscapeKeyIsPressed = true; // Parallel to glutLeaveMainLoop
 			break;
 
-		case 1:
-		case 49: //Digit 1
-			PressedDigit = 1;
-			glEnable(GL_TEXTURE_2D);
-			break;
-
-		case 2:
-		case 50: //Digit 2
-			PressedDigit = 2;
-			glEnable(GL_TEXTURE_2D);
-			break;
-
-		case 3:
-		case 51:
-			PressedDigit = 3;
-			glEnable(GL_TEXTURE_2D);
-			break;
-
-		case 4:
-		case 52:
-			PressedDigit = 4;
-			glEnable(GL_TEXTURE_2D);
-			break;
-
 		case 0x46: // for 'f' or "F'
 		case 0x66:
 			if (gbFullscreen == false)
@@ -239,6 +239,28 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			{
 				ToggleFullScreen();
 				gbFullscreen = false;
+			}
+			break;
+
+		default:
+			break;
+		}
+		break;
+
+	case WM_CHAR:
+		switch (wParam)
+		{
+		case 'L':
+		case 'l':
+			if (bLight == true)
+			{
+				glEnable(GL_LIGHTING);
+				bLight = false;
+			}
+			else
+			{
+				glDisable(GL_LIGHTING);
+				bLight = true;
 			}
 			break;
 
@@ -302,7 +324,6 @@ void Initialize(void)
 	//Function Prototypes
 	void UnInitialize(void);
 	void Resize(int, int);
-	bool loadGLTexture(GLuint*, TCHAR[]);
 
 	//Variable Declarations
 	PIXELFORMATDESCRIPTOR pfd;
@@ -395,13 +416,39 @@ void Initialize(void)
 		"#version 460 core" \
 		"\n" \
 		"in vec4 vPosition;" \
-		"in vec2 vTexCord;" \
-		"uniform mat4 u_mvp_matrix;" \
-		"out vec2 out_TexCord;" \
+		"in vec3 vNormal;" \
+		"uniform mat4 u_modelMatrix;" \
+		"uniform mat4 u_viewMatrix;" \
+		"uniform mat4 u_projection_matrix;" \
+		"uniform int u_LKeyPressed;" \
+		"uniform vec3 u_La;" \
+		"uniform vec3 u_Ld;" \
+		"uniform vec3 u_Ls;" \
+		"uniform vec3 u_Ka;" \
+		"uniform vec3 u_Kd;" \
+		"uniform vec3 u_Ks;" \
+		"uniform float u_materialShininess;" \
+		"uniform vec4 u_light_Position;" \
+		"out vec3 phong_ADS_Light;" \
 		"void main(void)" \
 		"{" \
-		"gl_Position = u_mvp_matrix * vPosition;" \
-		"out_TexCord = vTexCord;" \
+		"if (u_LKeyPressed == 1)" \
+		"{ " \
+		"	vec4 eye_coordinates = u_viewMatrix * u_modelMatrix * vPosition;" \
+		"	vec3 transformed_normal = normalize(mat3(u_viewMatrix * u_modelMatrix) * vNormal);" \
+		"	vec3 light_direction = normalize(vec3(u_light_Position) - eye_coordinates.xyz);" \
+		"   vec3 reflection_vector = reflect(-light_direction, transformed_normal);" \
+		"   vec3 view_vector = normalize(-eye_coordinates.xyz);" \
+		"   vec3 ambient = u_La * u_Ka;" \
+		"   vec3 diffuse = u_Ld * u_Kd * max(dot(light_direction, transformed_normal), 0.0);" \
+		"   vec3 specular = u_Ls * u_Ks * pow(max(dot(reflection_vector, view_vector), 0.0), u_materialShininess);" \
+		"	phong_ADS_Light =  ambient + diffuse + specular;" \
+		" } " \
+		" else " \
+		"{ " \
+		"	phong_ADS_Light = vec3(1.0, 1.0, 1.0);" \
+		"}" \
+		"gl_Position = u_projection_matrix * u_viewMatrix * u_modelMatrix * vPosition;" \
 		"}";
 
 	glShaderSource(VertexShaderObject, 1, (const GLchar**)&vertexShaderSourceCode, NULL);
@@ -439,18 +486,16 @@ void Initialize(void)
 	const GLchar* fragmentShaderSourceCode =
 		"#version 460 core" \
 		"\n" \
-		"in vec2 out_TexCord;" \
-		"uniform sampler2D u_Texture_Sampler;" \
+		"in vec3 phong_ADS_Light;" \
 		"out vec4 FragColor;" \
 		"void main(void)" \
-		"{" \
-		"FragColor = texture(u_Texture_Sampler, out_TexCord);" \
+		"{"
+		"FragColor = vec4(phong_ADS_Light, 1.0f);" \
 		"}";
 
 	glShaderSource(FragmentShaderObject, 1, (const GLchar**)&fragmentShaderSourceCode, NULL);
-
-	//Compile Shader
 	glCompileShader(FragmentShaderObject);
+
 	glGetShaderiv(FragmentShaderObject, GL_COMPILE_STATUS, &iShaderCompiledStatus);
 	if (iShaderCompiledStatus == GL_FALSE)
 	{
@@ -481,8 +526,8 @@ void Initialize(void)
 	glAttachShader(ShaderProgramObject, FragmentShaderObject);
 
 	// pre-linking biniding of shader program object with vertex shader position attribute
-	glBindAttribLocation(ShaderProgramObject, NRL_ATTRIBUTE_TEXCORD, "vTexCord"); 
 	glBindAttribLocation(ShaderProgramObject, NRL_ATTRIBUTE_POSITION, "vPosition");
+	glBindAttribLocation(ShaderProgramObject, NRL_ATTRIBUTE_NORMAL, "vNormal");
 
 	// link shader
 	glLinkProgram(ShaderProgramObject);
@@ -507,39 +552,50 @@ void Initialize(void)
 	}
 
 	// get MVP uniform location
-	mvpMatrixUniform = glGetUniformLocation(ShaderProgramObject, "u_mvp_matrix");
-	textureSamplerUniform = glGetUniformLocation(ShaderProgramObject, "u_Texture_Sampler");
+	modelMatrixUniform = glGetUniformLocation(ShaderProgramObject, "u_modelMatrix");
+	viewMatrixUniform = glGetUniformLocation(ShaderProgramObject, "u_viewMatrix");
+	projectionMatrixUniform = glGetUniformLocation(ShaderProgramObject, "u_projection_matrix");
+	LKeyPressedUniform = glGetUniformLocation(ShaderProgramObject, "u_LKeyPressed");
+	LaUniform = glGetUniformLocation(ShaderProgramObject, "u_La");
+	LdUniform = glGetUniformLocation(ShaderProgramObject, "u_Ld");
+	LsUniform = glGetUniformLocation(ShaderProgramObject, "u_Ls");
+	KaUniform = glGetUniformLocation(ShaderProgramObject, "u_Ka");
+	KdUniform = glGetUniformLocation(ShaderProgramObject, "u_Kd");
+	KsUniform = glGetUniformLocation(ShaderProgramObject, "u_Ks");
+	lightPositionUniform = glGetUniformLocation(ShaderProgramObject, "u_light_Position"); 
+	materialShininessUniform = glGetUniformLocation(ShaderProgramObject, "u_materialShininess");
+
 
 	// *** vertices, colors, shader attribs, vbo, vao initializations ***
-	// __________________________________Square
-	const GLfloat squareVertices[] =
-	{
-		1.0f, 1.0f, 0.0f,
-		-1.0f, 1.0f, 0.0f,
-		-1.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f
-	};
+	getSphereVertexData(sphere_vertices, sphere_normals, sphere_textures, sphere_elements);
+	gNumVertices = getNumberOfSphereVertices();
+	gNumElements = getNumberOfSphereElements();
 
-	
-	// ----------------------------------Square
-	glGenVertexArrays(1, &vao_Square);
-	glBindVertexArray(vao_Square);
+	glGenVertexArrays(1, &vao_Sphere);
+	glBindVertexArray(vao_Sphere);
 
-	// vPosition_Square Vertices
-	glGenBuffers(1, &vbo_Square);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_Square);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(squareVertices), squareVertices, GL_STATIC_DRAW);
+	//vPosition
+	glGenBuffers(1, &vbo_Sphere_Position);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_Sphere_Position);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(sphere_vertices), sphere_vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(NRL_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(NRL_ATTRIBUTE_POSITION);
+
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	//vNormal
+	glGenBuffers(1, &vbo_Sphere_Normals);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_Sphere_Normals);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(sphere_normals), sphere_normals, GL_STATIC_DRAW);
+	glVertexAttribPointer(NRL_ATTRIBUTE_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(NRL_ATTRIBUTE_NORMAL);
 
-	// vTexCords
-	glGenBuffers(1, &vbo_Texture_Square);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_Texture_Square);
-	glBufferData(GL_ARRAY_BUFFER, 4*2*sizeof(GL_FLOAT), NULL, GL_DYNAMIC_DRAW); //4*2=8 is no. of cooedinates in array
-	glVertexAttribPointer(NRL_ATTRIBUTE_TEXCORD, 2, GL_FLOAT, GL_FALSE, 0, NULL); // 2 (S & T)
-	glEnableVertexAttribArray(NRL_ATTRIBUTE_TEXCORD);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//vElement (Index Drawing)
+	glGenBuffers(1, &vbo_Sphere_Element);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_Sphere_Element);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(sphere_elements), sphere_elements, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glBindVertexArray(0);
@@ -556,16 +612,11 @@ void Initialize(void)
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	// We will always cull back faces for better performance
 	glEnable(GL_CULL_FACE);
-	
-	// Texture
-	//glEnable(GL_TEXTURE_2D); //2D Textures
-	loadGLTexture(&Smiley_Texture, MAKEINTRESOURCE(SMILEY_TEXTURE));
-	
 
 	// set backround color to which it will display even if it will empty.
 	// THIS LINE CAN BE IN drawRect();
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //Black
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //black
 
 	// set orthographics to identity matrix 
 	PerspectiveProjectionMatrix = mat4::identity();
@@ -573,43 +624,6 @@ void Initialize(void)
 	// Resize
 	Resize(WIN_WIDTH, WIN_HEIGHT);
 
-}
-
-bool loadGLTexture(GLuint* Texture, TCHAR resourceID[]) //User Define Function (UDF)
-{
-	//Variable Declarations
-	bool bResult = false;
-	HBITMAP	hBitmap = NULL;
-	BITMAP BMP;
-
-	//Code
-	hBitmap = (HBITMAP)LoadImage(GetModuleHandle(NULL), resourceID, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION); //DIB(Device Independent Bitmap)
-	if (hBitmap != NULL)
-	{
-		bResult = true;
-		GetObject(hBitmap, sizeof(BMP), &BMP);
-
-		//Now, OpenGL Starts Texturing....
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // ~4 (R,G,B,A)~ / 1- Give Better performanace
-		glGenTextures(1, Texture);
-		glBindTexture(GL_TEXTURE_2D, *Texture); //GL_TEXTURE_2D (Gattu CPU _| GPU)
-
-		//Setting Texture Paratmeters
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //MAG(Magnification 256x256) 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); //MIN(Minification 16x16)
-
-
-		//Pushing Data
-		//gluBuild2DMipmaps(GL_TEXTURE_2D, 3, BMP.bmWidth, BMP.bmHeight, GL_BGR_EXT, GL_UNSIGNED_BYTE, BMP.bmBits);
-		//gluBuild2Dmipmaps() = glTexImage2D() + glGenerateMipmap()
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, BMP.bmWidth, BMP.bmHeight, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, BMP.bmBits);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-
-		DeleteObject(hBitmap);
-	}
-
-	return bResult;
 }
 
 void Resize(int width, int height)
@@ -626,120 +640,69 @@ void Resize(int width, int height)
 
 void Display(void)
 {
-
-	// code 
+	// code  
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// start using OpenGL program object
 	glUseProgram(ShaderProgramObject);
 
-	// Start ********************************************* Squre Trasnformation
-	mat4 translateMatrix = mat4::identity(); // Translations Matrix Declarrations
-	mat4 scaleMatrix = mat4::identity(); // Scale matrix
-	mat4 modelViewMatrix = mat4::identity();
-	mat4 modelViewProjectionMatrix = mat4::identity();
-
-	//glTranslatef();
-	translateMatrix = vmath::translate(0.0f, 0.0f, -4.0f);
-
-	
-	// glScalef();
-	//scaleMatrix = vmath::scale(0.75f, 0.75f, 0.75f);
-
-	modelViewMatrix = translateMatrix;
-	//Multiply the modelview and orthographics matrix to get modelviewprojections matrix
-	modelViewProjectionMatrix = PerspectiveProjectionMatrix * modelViewMatrix; // Order IS IMPORTANT
-
-	// pass abouve modelviewprojections matrix to the vertex shader in 'u_mvp_matrix' shader variable 
-	// whose position value  we already calculated in initWithFrame() by using glGetUniformLocations()
-	glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
-
-	// *** bind vao ***
-	glBindVertexArray(vao_Square);
-
-	if (PressedDigit == 1)
+	if (bLight == true)
 	{
-		squareTexCords[0] = 1.0f;
-		squareTexCords[1] = 1.0f;
-		squareTexCords[2] = 0.0f;
-		squareTexCords[3] = 1.0f;
-		squareTexCords[4] = 0.0f;
-		squareTexCords[5] = 0.0f;
-		squareTexCords[6] = 1.0f;
-		squareTexCords[7] = 0.0f;
-	}
-	else if (PressedDigit == 2)
-	{
-		squareTexCords[0] = 0.5f;
-		squareTexCords[1] = 0.5f;
-		squareTexCords[2] = 0.0f;
-		squareTexCords[3] = 0.5f;
-		squareTexCords[4] = 0.0f;
-		squareTexCords[5] = 0.0f;
-		squareTexCords[6] = 0.5f;
-		squareTexCords[7] = 0.0f;
+		glUniform1i(LKeyPressedUniform, 1); // Light Enable Zala with 1
 
-	}
-	else if (PressedDigit == 3)
-	{
-		squareTexCords[0] = 2.0f;
-		squareTexCords[1] = 2.0f;
-		squareTexCords[2] = 0.0f;
-		squareTexCords[3] = 2.0f;
-		squareTexCords[4] = 0.0f;
-		squareTexCords[5] = 0.0f;
-		squareTexCords[6] = 2.0f;
-		squareTexCords[7] = 0.0f;
-	}
-	else if (PressedDigit == 4)
-	{
-		squareTexCords[0] = 0.5f;
-		squareTexCords[1] = 0.5f;
-		squareTexCords[2] = 0.5f;
-		squareTexCords[3] = 0.5f;
-		squareTexCords[4] = 0.5f;
-		squareTexCords[5] = 0.5f;
-		squareTexCords[6] = 0.5f;
-		squareTexCords[7] = 0.5f;
+		glUniform3fv(LaUniform, 1, lightAmbient); //White Colour
+		glUniform3fv(LdUniform, 1,  lightDiffuse); //White Colour
+		glUniform3fv(LsUniform, 1, lightSpecular);
+
+		glUniform3fv(KaUniform, 1, materialAmbient); ///
+		glUniform3fv(KdUniform, 1, materialDiffuse); 
+		glUniform3fv(KsUniform, 1, materialSpecular); 
+		glUniform1f(materialShininessUniform, materialShininesss);
 	}
 	else
 	{
-
-		squareTexCords[0] = 1.0f;
-		squareTexCords[1] = 1.0f;
-		squareTexCords[2] = 0.0f;
-		squareTexCords[3] = 1.0f;
-		squareTexCords[4] = 0.0f;
-		squareTexCords[5] = 0.0f;
-		squareTexCords[6] = 1.0f;
-		squareTexCords[7] = 0.0f;
+		glUniform1i(LKeyPressedUniform, 0); // Andhaar,....
 	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_Texture_Square);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(squareTexCords), squareTexCords, GL_DYNAMIC_DRAW);
+	//Light Position Array
+	GLfloat lightPosition[] = { 100.0f, 100.0f, 100.0f, 1.0f };
 
-	// Texture of Square
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Smiley_Texture);
+	glUniform4fv(lightPositionUniform, 1, (GLfloat*)lightPosition);
 
-	glUniform1i(textureSamplerUniform, 0); // 0 = GL_TEXTURE0
+	// OpenGL Drawing
+	// set ModelView & ModelviewProjection matrices to identity
+	mat4 modelMatrix = mat4::identity();
+	mat4 viewMatrix = mat4::identity();
+	mat4 modelViewProjectionMatrix = mat4::identity();
+	mat4 translateMatrix = mat4::identity(); // Translations Matrix Declarrations
 
-	//Draw The Square
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // 0 to 4 vertex ofCube draw kelet
-	
+	//glTranslatef();
+	translateMatrix = translate(0.0f, 0.0f, -1.5f);
+
+	modelMatrix = translateMatrix;
+
+	//Multiply the modelview and orthographics matrix to get modelviewprojections matrix
+	//modelViewProjectionMatrix = PerspectiveProjectionMatrix * viewMatrix * modelMatrix; // Order IS IMPORTANT
+
+	// pass abouve modelviewprojections matrix to the vertex shader in 'u_mvp_matrix' shader variable 
+	// whose position value  we already calculated in initWithFrame() by using glGetUniformLocations()
+	glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix);
+	glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, PerspectiveProjectionMatrix);
+
+	// *** bind vao ***
+	glBindVertexArray(vao_Sphere);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo_Sphere_Element);
+	glDrawElements(GL_TRIANGLES, gNumElements, GL_UNSIGNED_SHORT, 0);
+
 	// *** unbind vao ***
 	glBindVertexArray(0);
-	// End ************************************************(Suare Transformation)
 
 	// stop using OpenGL Program object 
 	glUseProgram(0);
 
 	SwapBuffers(ghdc);
-
-}
-
-void Update(void)
-{
 
 }
 
@@ -757,33 +720,38 @@ void UnInitialize(void)
 		ShowCursor(TRUE);
 	}
 
-	
-	if (vao_Square)
+	// Destroy vao
+	if (vao_Sphere)
 	{
-		glDeleteVertexArrays(1, &vao_Square);
-		vao_Square = 0;
+		glDeleteVertexArrays(1, &vao_Sphere);
+		vao_Sphere = 0;
 	}
 
-	// Destroy vbos
-	if (vbo_Square)
+	// Destroy vbo
+	if (vbo_Sphere)
 	{
-		glDeleteVertexArrays(1, &vbo_Square);
-		vbo_Square  = 0;
+		glDeleteBuffers(1, &vbo_Sphere);
+		vbo_Sphere = 0;
+	}
+
+	// Destroy vbo
+	if (vbo_Sphere_Position)
+	{
+		glDeleteBuffers(1, &vbo_Sphere_Position);
+		vbo_Sphere_Position = 0;
 	}
 
 
-	// Destroy vbo_Color
-	if (vbo_Color)
+	if (vbo_Sphere_Normals)
 	{
-		glDeleteBuffers(1, &vbo_Color);
-		vbo_Color = 0;
+		glDeleteBuffers(1, &vbo_Sphere_Normals);
+		vbo_Sphere_Normals = 0;
 	}
 
-	//Texture
-	if (vbo_Texture_Square)
+	if (vbo_Sphere_Element)
 	{
-		glDeleteTextures(1, &vbo_Texture_Square);
-		vbo_Texture_Square = 0;
+		glDeleteBuffers(1, &vbo_Sphere_Element);
+		vbo_Sphere_Element = 0;
 	}
 
 	//detach vertex shader from program object

@@ -13,11 +13,13 @@
 
 #define WIN_WIDTH 800
 #define WIN_HEIGHT 600
+
+//CheckerBoard
+#define CheckImageWidth 64
+#define CheckImageHeight 64
+
 int Width;
 int Height;
-
-int PressedDigit = 0;
-GLfloat squareTexCords[8] = { 0.0f };
 
 using namespace vmath;
 
@@ -50,9 +52,6 @@ GLuint VertexShaderObject;
 GLuint FragmentShaderObject;
 GLuint ShaderProgramObject;
 
-//GLuint vao; // Vartex Array Object
-//GLuint vbo; // Vertex Buffer object
-
 GLuint mvpMatrixUniform;
 GLuint textureSamplerUniform;
 
@@ -64,14 +63,19 @@ GLfloat Angle_Cube = 0.0f;
 
 //Square
 GLuint vao_Square;
-
 GLuint vbo_Square;
+GLuint vbo_Position_Square;
 GLuint vbo_Texture_Square;
+
+//Checker Board
+GLubyte CheckImage[CheckImageHeight][CheckImageWidth][4];
+GLuint checkerTexture;
+TCHAR resourceID[];
+
 
 mat4 PerspectiveProjectionMatrix;
 
-//***Image Loading / Texure
-GLuint Smiley_Texture;
+
 
 //main()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
@@ -124,7 +128,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 
 	// Create Window
 	//Parallel to glutInitWindowSize(), glutInitWindowPosition() and glutCreateWindow() all Threee together
-	hwnd = CreateWindow(szClassName, TEXT("Tweaked Smiley : Nandlal Lambole"), WS_OVERLAPPEDWINDOW, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindow(szClassName, TEXT("Checker Board Using PP : Nandlal Lambole"), WS_OVERLAPPEDWINDOW, Width, Height, WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
 
 	ghwnd = hwnd;
 
@@ -204,30 +208,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				gbEscapeKeyIsPressed = true; // Parallel to glutLeaveMainLoop
 			break;
 
-		case 1:
-		case 49: //Digit 1
-			PressedDigit = 1;
-			glEnable(GL_TEXTURE_2D);
-			break;
-
-		case 2:
-		case 50: //Digit 2
-			PressedDigit = 2;
-			glEnable(GL_TEXTURE_2D);
-			break;
-
-		case 3:
-		case 51:
-			PressedDigit = 3;
-			glEnable(GL_TEXTURE_2D);
-			break;
-
-		case 4:
-		case 52:
-			PressedDigit = 4;
-			glEnable(GL_TEXTURE_2D);
-			break;
-
 		case 0x46: // for 'f' or "F'
 		case 0x66:
 			if (gbFullscreen == false)
@@ -302,7 +282,7 @@ void Initialize(void)
 	//Function Prototypes
 	void UnInitialize(void);
 	void Resize(int, int);
-	bool loadGLTexture(GLuint*, TCHAR[]);
+	void loadGLTexture(void);
 
 	//Variable Declarations
 	PIXELFORMATDESCRIPTOR pfd;
@@ -481,7 +461,7 @@ void Initialize(void)
 	glAttachShader(ShaderProgramObject, FragmentShaderObject);
 
 	// pre-linking biniding of shader program object with vertex shader position attribute
-	glBindAttribLocation(ShaderProgramObject, NRL_ATTRIBUTE_TEXCORD, "vTexCord"); 
+	glBindAttribLocation(ShaderProgramObject, NRL_ATTRIBUTE_TEXCORD, "vTexCord");
 	glBindAttribLocation(ShaderProgramObject, NRL_ATTRIBUTE_POSITION, "vPosition");
 
 	// link shader
@@ -511,33 +491,31 @@ void Initialize(void)
 	textureSamplerUniform = glGetUniformLocation(ShaderProgramObject, "u_Texture_Sampler");
 
 	// *** vertices, colors, shader attribs, vbo, vao initializations ***
-	// __________________________________Square
-	const GLfloat squareVertices[] =
+	// __________________________________Square Texcords
+	const GLfloat squareTexCords[] =
 	{
-		1.0f, 1.0f, 0.0f,
-		-1.0f, 1.0f, 0.0f,
-		-1.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f
+		1.0f, 1.0f,
+		0.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 0.0f
 	};
 
-	
 	// ----------------------------------Square
 	glGenVertexArrays(1, &vao_Square);
 	glBindVertexArray(vao_Square);
 
-	// vPosition_Square Vertices
+	// vPosition
 	glGenBuffers(1, &vbo_Square);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_Square);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(squareVertices), squareVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 4*3*sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(NRL_ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(NRL_ATTRIBUTE_POSITION);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-
 	// vTexCords
 	glGenBuffers(1, &vbo_Texture_Square);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_Texture_Square);
-	glBufferData(GL_ARRAY_BUFFER, 4*2*sizeof(GL_FLOAT), NULL, GL_DYNAMIC_DRAW); //4*2=8 is no. of cooedinates in array
+	glBufferData(GL_ARRAY_BUFFER, sizeof(squareTexCords), squareTexCords, GL_STATIC_DRAW);
 	glVertexAttribPointer(NRL_ATTRIBUTE_TEXCORD, 2, GL_FLOAT, GL_FALSE, 0, NULL); // 2 (S & T)
 	glEnableVertexAttribArray(NRL_ATTRIBUTE_TEXCORD);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -548,23 +526,21 @@ void Initialize(void)
 
 	// set-up depth buffer
 	glClearDepth(1.0f);
+
 	// enable depth testing
 	glEnable(GL_DEPTH_TEST);
+
 	//depth test to do
 	glDepthFunc(GL_LEQUAL);
+
 	// set really nice percpective calculations?
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	// We will always cull back faces for better performance
-	glEnable(GL_CULL_FACE);
-	
+
 	// Texture
-	//glEnable(GL_TEXTURE_2D); //2D Textures
-	loadGLTexture(&Smiley_Texture, MAKEINTRESOURCE(SMILEY_TEXTURE));
+	glEnable(GL_TEXTURE_2D); //2D Textures
+	//Loading Texture
+	loadGLTexture();
 	
-
-	// set backround color to which it will display even if it will empty.
-	// THIS LINE CAN BE IN drawRect();
-
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //Black
 
 	// set orthographics to identity matrix 
@@ -575,41 +551,46 @@ void Initialize(void)
 
 }
 
-bool loadGLTexture(GLuint* Texture, TCHAR resourceID[]) //User Define Function (UDF)
+void loadGLTexture(void) //User Define Function (UDF)
 {
-	//Variable Declarations
-	bool bResult = false;
-	HBITMAP	hBitmap = NULL;
-	BITMAP BMP;
+	//Function Declarations
+	void MakeCheckImage(void);
 
-	//Code
-	hBitmap = (HBITMAP)LoadImage(GetModuleHandle(NULL), resourceID, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION); //DIB(Device Independent Bitmap)
-	if (hBitmap != NULL)
+	MakeCheckImage();
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	//Now, OpenGL Starts Texturing....
+	glGenTextures(1, &checkerTexture);
+	glBindTexture(GL_TEXTURE_2D, checkerTexture); //GL_TEXTURE_2D(Gattu CPU _| GPU)
+
+	//Setting Texture Paratmeters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //Weighted Average (GL_LINEAR)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	//Pushing Data
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, CheckImageWidth, CheckImageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, CheckImage);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+}
+
+void MakeCheckImage(void)
+{
+	int i, j, c;
+
+	for (i = 0; i < CheckImageHeight; i++)
 	{
-		bResult = true;
-		GetObject(hBitmap, sizeof(BMP), &BMP);
+		for (j = 0; j < CheckImageWidth; j++)
+		{
+			c = (((i & 0x8) == 0) ^ ((j & 0x8) == 0)) * 255;
 
-		//Now, OpenGL Starts Texturing....
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // ~4 (R,G,B,A)~ / 1- Give Better performanace
-		glGenTextures(1, Texture);
-		glBindTexture(GL_TEXTURE_2D, *Texture); //GL_TEXTURE_2D (Gattu CPU _| GPU)
-
-		//Setting Texture Paratmeters
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //MAG(Magnification 256x256) 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); //MIN(Minification 16x16)
-
-
-		//Pushing Data
-		//gluBuild2DMipmaps(GL_TEXTURE_2D, 3, BMP.bmWidth, BMP.bmHeight, GL_BGR_EXT, GL_UNSIGNED_BYTE, BMP.bmBits);
-		//gluBuild2Dmipmaps() = glTexImage2D() + glGenerateMipmap()
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, BMP.bmWidth, BMP.bmHeight, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, BMP.bmBits);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-
-		DeleteObject(hBitmap);
+			CheckImage[i][j][0] = (GLubyte)c;
+			CheckImage[i][j][1] = (GLubyte)c;
+			CheckImage[i][j][2] = (GLubyte)c;
+			CheckImage[i][j][3] = 255;
+		}
 	}
-
-	return bResult;
 }
 
 void Resize(int width, int height)
@@ -626,6 +607,8 @@ void Resize(int width, int height)
 
 void Display(void)
 {
+	void frontQuad(void);
+	void rightQuad(void);
 
 	// code 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -633,109 +616,97 @@ void Display(void)
 	// start using OpenGL program object
 	glUseProgram(ShaderProgramObject);
 
-	// Start ********************************************* Squre Trasnformation
-	mat4 translateMatrix = mat4::identity(); // Translations Matrix Declarrations
-	mat4 scaleMatrix = mat4::identity(); // Scale matrix
-	mat4 modelViewMatrix = mat4::identity();
-	mat4 modelViewProjectionMatrix = mat4::identity();
-
-	//glTranslatef();
-	translateMatrix = vmath::translate(0.0f, 0.0f, -4.0f);
-
-	
-	// glScalef();
-	//scaleMatrix = vmath::scale(0.75f, 0.75f, 0.75f);
-
-	modelViewMatrix = translateMatrix;
-	//Multiply the modelview and orthographics matrix to get modelviewprojections matrix
-	modelViewProjectionMatrix = PerspectiveProjectionMatrix * modelViewMatrix; // Order IS IMPORTANT
-
-	// pass abouve modelviewprojections matrix to the vertex shader in 'u_mvp_matrix' shader variable 
-	// whose position value  we already calculated in initWithFrame() by using glGetUniformLocations()
-	glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
-
-	// *** bind vao ***
-	glBindVertexArray(vao_Square);
-
-	if (PressedDigit == 1)
-	{
-		squareTexCords[0] = 1.0f;
-		squareTexCords[1] = 1.0f;
-		squareTexCords[2] = 0.0f;
-		squareTexCords[3] = 1.0f;
-		squareTexCords[4] = 0.0f;
-		squareTexCords[5] = 0.0f;
-		squareTexCords[6] = 1.0f;
-		squareTexCords[7] = 0.0f;
-	}
-	else if (PressedDigit == 2)
-	{
-		squareTexCords[0] = 0.5f;
-		squareTexCords[1] = 0.5f;
-		squareTexCords[2] = 0.0f;
-		squareTexCords[3] = 0.5f;
-		squareTexCords[4] = 0.0f;
-		squareTexCords[5] = 0.0f;
-		squareTexCords[6] = 0.5f;
-		squareTexCords[7] = 0.0f;
-
-	}
-	else if (PressedDigit == 3)
-	{
-		squareTexCords[0] = 2.0f;
-		squareTexCords[1] = 2.0f;
-		squareTexCords[2] = 0.0f;
-		squareTexCords[3] = 2.0f;
-		squareTexCords[4] = 0.0f;
-		squareTexCords[5] = 0.0f;
-		squareTexCords[6] = 2.0f;
-		squareTexCords[7] = 0.0f;
-	}
-	else if (PressedDigit == 4)
-	{
-		squareTexCords[0] = 0.5f;
-		squareTexCords[1] = 0.5f;
-		squareTexCords[2] = 0.5f;
-		squareTexCords[3] = 0.5f;
-		squareTexCords[4] = 0.5f;
-		squareTexCords[5] = 0.5f;
-		squareTexCords[6] = 0.5f;
-		squareTexCords[7] = 0.5f;
-	}
-	else
-	{
-
-		squareTexCords[0] = 1.0f;
-		squareTexCords[1] = 1.0f;
-		squareTexCords[2] = 0.0f;
-		squareTexCords[3] = 1.0f;
-		squareTexCords[4] = 0.0f;
-		squareTexCords[5] = 0.0f;
-		squareTexCords[6] = 1.0f;
-		squareTexCords[7] = 0.0f;
-	}
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_Texture_Square);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(squareTexCords), squareTexCords, GL_DYNAMIC_DRAW);
-
-	// Texture of Square
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Smiley_Texture);
-
-	glUniform1i(textureSamplerUniform, 0); // 0 = GL_TEXTURE0
-
-	//Draw The Square
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // 0 to 4 vertex ofCube draw kelet
-	
-	// *** unbind vao ***
-	glBindVertexArray(0);
-	// End ************************************************(Suare Transformation)
+	frontQuad();
+	rightQuad();
 
 	// stop using OpenGL Program object 
 	glUseProgram(0);
 
 	SwapBuffers(ghdc);
 
+}
+
+void frontQuad(void)
+{
+
+	mat4 translateMatrix = mat4::identity();
+	mat4 modelViewMatrix = mat4::identity();
+	mat4 modelViewProjectionMatrix = mat4::identity();
+
+	translateMatrix = vmath::translate(-0.2f, 0.0f, -6.0f);
+	modelViewMatrix = translateMatrix;
+	modelViewProjectionMatrix = PerspectiveProjectionMatrix * modelViewMatrix;
+
+	glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+
+	
+
+	const GLfloat frontSquareVertices[] =
+	{
+		-2.0f, -1.0f, 0.0f,
+		-2.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f
+	};
+
+	
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_Square);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(frontSquareVertices), frontSquareVertices, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, checkerTexture);
+
+	glUniform1i(textureSamplerUniform, 0); // 0 = GL_TEXTURE0
+
+	// *** bind vao ***
+	glBindVertexArray(vao_Square);
+
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // 0 to 4 vertex ofCube draw kelet
+
+	// *** unbind vao ***
+	glBindVertexArray(0);
+	// End ************************************************(Suare Transformation)
+}
+
+void rightQuad(void)
+{
+
+	mat4 translateMatrix = mat4::identity();
+	mat4 modelViewMatrix = mat4::identity();
+	mat4 modelViewProjectionMatrix = mat4::identity();
+
+	translateMatrix = vmath::translate(0.0f, 0.0f, -6.0f);
+	modelViewMatrix = translateMatrix;
+	modelViewProjectionMatrix = PerspectiveProjectionMatrix * modelViewMatrix;
+
+	glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, modelViewProjectionMatrix);
+
+	const GLfloat rightSquareVertices[] =
+	{
+		1.0f, -1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+		2.41421f, 1.0f, -1.41421f,
+		2.41421f, -1.0f, -1.41421f
+	};
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_Square);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(rightSquareVertices), rightSquareVertices, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// Texture of Square
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, checkerTexture);
+	glUniform1i(textureSamplerUniform, 0); // 0 = GL_TEXTURE0
+
+	// *** bind vao ***
+	glBindVertexArray(vao_Square);
+
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // 0 to 4 vertex ofCube draw kelet
+
+	// *** unbind vao ***
+	glBindVertexArray(0);
+	// End ************************************************(Suare Transformation)
 }
 
 void Update(void)
@@ -757,18 +728,32 @@ void UnInitialize(void)
 		ShowCursor(TRUE);
 	}
 
-	
+
 	if (vao_Square)
 	{
 		glDeleteVertexArrays(1, &vao_Square);
 		vao_Square = 0;
 	}
 
-	// Destroy vbos
+	// Destroy vbo
+	if (vbo_Texture_Square)
+	{
+		glDeleteBuffers(1, &vbo_Position_Square);
+		vbo_Position_Square = 0;
+	}
+
+	if (vbo_Position_Square)
+	{
+		glDeleteBuffers(1, &vbo_Position_Square);
+		vbo_Position_Square = 0;
+	}
+
+
+
 	if (vbo_Square)
 	{
 		glDeleteVertexArrays(1, &vbo_Square);
-		vbo_Square  = 0;
+		vbo_Square = 0;
 	}
 
 

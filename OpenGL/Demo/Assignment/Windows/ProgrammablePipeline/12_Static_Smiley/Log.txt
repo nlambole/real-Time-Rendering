@@ -1,10 +1,12 @@
 Log File Is Successfully Opened..
 1. OpenGL Vender : NVIDIA Corporation
-2. OpenGL Renderer : GeForce 940MX/PCIe/SSE2
-3. OpenGL Version : 4.6.0 NVIDIA 460.89
+2. OpenGL Renderer : GeForce GTX 1050/PCIe/SSE2
+3. OpenGL Version : 4.6.0 NVIDIA 457.71
 4. GLSL (Graphics Lib. Shading Language) Version : 4.60 NVIDIA
 OpenGL Extentions : GL_AMD_multi_draw_indirect
 OpenGL Extentions : GL_AMD_seamless_cubemap_per_texture
+OpenGL Extentions : GL_AMD_vertex_shader_viewport_index
+OpenGL Extentions : GL_AMD_vertex_shader_layer
 OpenGL Extentions : GL_ARB_arrays_of_arrays
 OpenGL Extentions : GL_ARB_base_instance
 OpenGL Extentions : GL_ARB_bindless_texture
@@ -46,6 +48,7 @@ OpenGL Extentions : GL_ARB_fragment_layer_viewport
 OpenGL Extentions : GL_ARB_fragment_program
 OpenGL Extentions : GL_ARB_fragment_program_shadow
 OpenGL Extentions : GL_ARB_fragment_shader
+OpenGL Extentions : GL_ARB_fragment_shader_interlock
 OpenGL Extentions : GL_ARB_framebuffer_no_attachments
 OpenGL Extentions : GL_ARB_framebuffer_object
 OpenGL Extentions : GL_ARB_framebuffer_sRGB
@@ -78,11 +81,13 @@ OpenGL Extentions : GL_ARB_pixel_buffer_object
 OpenGL Extentions : GL_ARB_point_parameters
 OpenGL Extentions : GL_ARB_point_sprite
 OpenGL Extentions : GL_ARB_polygon_offset_clamp
+OpenGL Extentions : GL_ARB_post_depth_coverage
 OpenGL Extentions : GL_ARB_program_interface_query
 OpenGL Extentions : GL_ARB_provoking_vertex
 OpenGL Extentions : GL_ARB_query_buffer_object
 OpenGL Extentions : GL_ARB_robust_buffer_access_behavior
 OpenGL Extentions : GL_ARB_robustness
+OpenGL Extentions : GL_ARB_sample_locations
 OpenGL Extentions : GL_ARB_sample_shading
 OpenGL Extentions : GL_ARB_sampler_objects
 OpenGL Extentions : GL_ARB_seamless_cube_map
@@ -104,12 +109,15 @@ OpenGL Extentions : GL_ARB_shader_subroutine
 OpenGL Extentions : GL_ARB_shader_texture_image_samples
 OpenGL Extentions : GL_ARB_shader_texture_lod
 OpenGL Extentions : GL_ARB_shading_language_100
+OpenGL Extentions : GL_ARB_shader_viewport_layer_array
 OpenGL Extentions : GL_ARB_shading_language_420pack
 OpenGL Extentions : GL_ARB_shading_language_include
 OpenGL Extentions : GL_ARB_shading_language_packing
 OpenGL Extentions : GL_ARB_shadow
 OpenGL Extentions : GL_ARB_sparse_buffer
 OpenGL Extentions : GL_ARB_sparse_texture
+OpenGL Extentions : GL_ARB_sparse_texture2
+OpenGL Extentions : GL_ARB_sparse_texture_clamp
 OpenGL Extentions : GL_ARB_spirv_extensions
 OpenGL Extentions : GL_ARB_stencil_texturing
 OpenGL Extentions : GL_ARB_sync
@@ -129,6 +137,7 @@ OpenGL Extentions : GL_ARB_texture_env_combine
 OpenGL Extentions : GL_ARB_texture_env_crossbar
 OpenGL Extentions : GL_ARB_texture_env_dot3
 OpenGL Extentions : GL_ARB_texture_filter_anisotropic
+OpenGL Extentions : GL_ARB_texture_filter_minmax
 OpenGL Extentions : GL_ARB_texture_float
 OpenGL Extentions : GL_ARB_texture_gather
 OpenGL Extentions : GL_ARB_texture_mirror_clamp_to_edge
@@ -202,7 +211,9 @@ OpenGL Extentions : GL_EXT_packed_pixels
 OpenGL Extentions : GL_EXT_pixel_buffer_object
 OpenGL Extentions : GL_EXT_point_parameters
 OpenGL Extentions : GL_EXT_polygon_offset_clamp
+OpenGL Extentions : GL_EXT_post_depth_coverage
 OpenGL Extentions : GL_EXT_provoking_vertex
+OpenGL Extentions : GL_EXT_raster_multisample
 OpenGL Extentions : GL_EXT_rescale_normal
 OpenGL Extentions : GL_EXT_secondary_color
 OpenGL Extentions : GL_EXT_separate_shader_objects
@@ -211,6 +222,7 @@ OpenGL Extentions : GL_EXT_shader_image_load_formatted
 OpenGL Extentions : GL_EXT_shader_image_load_store
 OpenGL Extentions : GL_EXT_shader_integer_mix
 OpenGL Extentions : GL_EXT_shadow_funcs
+OpenGL Extentions : GL_EXT_sparse_texture2
 OpenGL Extentions : GL_EXT_stencil_two_side
 OpenGL Extentions : GL_EXT_stencil_wrap
 OpenGL Extentions : GL_EXT_texture3D
@@ -225,6 +237,7 @@ OpenGL Extentions : GL_EXT_texture_edge_clamp
 OpenGL Extentions : GL_EXT_texture_env_combine
 OpenGL Extentions : GL_EXT_texture_env_dot3
 OpenGL Extentions : GL_EXT_texture_filter_anisotropic
+OpenGL Extentions : GL_EXT_texture_filter_minmax
 OpenGL Extentions : GL_EXT_texture_integer
 OpenGL Extentions : GL_EXT_texture_lod
 OpenGL Extentions : GL_EXT_texture_lod_bias
@@ -257,7 +270,6 @@ OpenGL Extentions : GL_KHR_robust_buffer_access_behavior
 OpenGL Extentions : GL_KHR_robustness
 OpenGL Extentions : GL_EXT_semaphore
 OpenGL Extentions : GL_EXT_semaphore_win32
-OpenGL Extentions : GL_NV_timeline_semaphore
 OpenGL Extentions : GL_KHR_shader_subgroup
 OpenGL Extentions : GL_KTX_buffer_region
 OpenGL Extentions : GL_NV_alpha_to_coverage_dither_control
@@ -266,11 +278,16 @@ OpenGL Extentions : GL_NV_bindless_multi_draw_indirect_count
 OpenGL Extentions : GL_NV_bindless_texture
 OpenGL Extentions : GL_NV_blend_equation_advanced
 OpenGL Extentions : GL_NV_blend_equation_advanced_coherent
+OpenGL Extentions : GL_NVX_blend_equation_advanced_multi_draw_buffers
 OpenGL Extentions : GL_NV_blend_minmax_factor
 OpenGL Extentions : GL_NV_blend_square
+OpenGL Extentions : GL_NV_clip_space_w_scaling
 OpenGL Extentions : GL_NV_command_list
 OpenGL Extentions : GL_NV_compute_program5
 OpenGL Extentions : GL_NV_conditional_render
+OpenGL Extentions : GL_NV_conservative_raster
+OpenGL Extentions : GL_NV_conservative_raster_dilate
+OpenGL Extentions : GL_NV_conservative_raster_pre_snap_triangles
 OpenGL Extentions : GL_NV_copy_depth_to_color
 OpenGL Extentions : GL_NV_copy_image
 OpenGL Extentions : GL_NV_depth_buffer_float
@@ -282,13 +299,18 @@ OpenGL Extentions : GL_NV_ES3_1_compatibility
 OpenGL Extentions : GL_NV_explicit_multisample
 OpenGL Extentions : GL_NV_feature_query
 OpenGL Extentions : GL_NV_fence
+OpenGL Extentions : GL_NV_fill_rectangle
 OpenGL Extentions : GL_NV_float_buffer
 OpenGL Extentions : GL_NV_fog_distance
+OpenGL Extentions : GL_NV_fragment_coverage_to_color
 OpenGL Extentions : GL_NV_fragment_program
 OpenGL Extentions : GL_NV_fragment_program_option
 OpenGL Extentions : GL_NV_fragment_program2
+OpenGL Extentions : GL_NV_fragment_shader_interlock
+OpenGL Extentions : GL_NV_framebuffer_mixed_samples
 OpenGL Extentions : GL_NV_framebuffer_multisample_coverage
 OpenGL Extentions : GL_NV_geometry_shader4
+OpenGL Extentions : GL_NV_geometry_shader_passthrough
 OpenGL Extentions : GL_NV_gpu_program4
 OpenGL Extentions : GL_NV_internalformat_sample_query
 OpenGL Extentions : GL_NV_gpu_program4_1
@@ -298,6 +320,7 @@ OpenGL Extentions : GL_NV_gpu_program_fp64
 OpenGL Extentions : GL_NV_gpu_shader5
 OpenGL Extentions : GL_NV_half_float
 OpenGL Extentions : GL_NV_light_max_exponent
+OpenGL Extentions : GL_NV_memory_attachment
 OpenGL Extentions : GL_NV_multisample_coverage
 OpenGL Extentions : GL_NV_multisample_filter_hint
 OpenGL Extentions : GL_NV_occlusion_query
@@ -305,6 +328,7 @@ OpenGL Extentions : GL_NV_packed_depth_stencil
 OpenGL Extentions : GL_NV_parameter_buffer_object
 OpenGL Extentions : GL_NV_parameter_buffer_object2
 OpenGL Extentions : GL_NV_path_rendering
+OpenGL Extentions : GL_NV_path_rendering_shared_edge
 OpenGL Extentions : GL_NV_pixel_data_range
 OpenGL Extentions : GL_NV_point_sprite
 OpenGL Extentions : GL_NV_primitive_restart
@@ -312,12 +336,17 @@ OpenGL Extentions : GL_NV_query_resource
 OpenGL Extentions : GL_NV_query_resource_tag
 OpenGL Extentions : GL_NV_register_combiners
 OpenGL Extentions : GL_NV_register_combiners2
+OpenGL Extentions : GL_NV_sample_locations
+OpenGL Extentions : GL_NV_sample_mask_override_coverage
 OpenGL Extentions : GL_NV_shader_atomic_counters
 OpenGL Extentions : GL_NV_shader_atomic_float
+OpenGL Extentions : GL_NV_shader_atomic_float64
+OpenGL Extentions : GL_NV_shader_atomic_fp16_vector
 OpenGL Extentions : GL_NV_shader_atomic_int64
 OpenGL Extentions : GL_NV_shader_buffer_load
 OpenGL Extentions : GL_NV_shader_storage_buffer_object
 OpenGL Extentions : GL_NV_shader_subgroup_partitioned
+OpenGL Extentions : GL_NV_stereo_view_rendering
 OpenGL Extentions : GL_NV_texgen_reflection
 OpenGL Extentions : GL_NV_texture_barrier
 OpenGL Extentions : GL_NV_texture_compression_vtc
@@ -340,6 +369,8 @@ OpenGL Extentions : GL_NV_vertex_program1_1
 OpenGL Extentions : GL_NV_vertex_program2
 OpenGL Extentions : GL_NV_vertex_program2_option
 OpenGL Extentions : GL_NV_vertex_program3
+OpenGL Extentions : GL_NV_viewport_array2
+OpenGL Extentions : GL_NV_viewport_swizzle
 OpenGL Extentions : GL_NVX_conditional_render
 OpenGL Extentions : GL_NVX_linked_gpu_multicast
 OpenGL Extentions : GL_NV_gpu_multicast
