@@ -1,0 +1,6 @@
+com/nrlambole/events/MyView.java
+ com.nrlambole.events.MyView
+com/nrlambole/events/BuildConfig.java
+ com.nrlambole.events.BuildConfig
+com/nrlambole/events/MainActivity.java
+ com.nrlambole.events.MainActivity

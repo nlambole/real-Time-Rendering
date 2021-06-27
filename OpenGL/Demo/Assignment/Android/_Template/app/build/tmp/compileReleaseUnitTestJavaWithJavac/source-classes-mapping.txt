@@ -1,0 +1,2 @@
+com/nrlambole/firstwindow_ide/ExampleUnitTest.java
+ com.nrlambole.firstwindow_ide.ExampleUnitTest

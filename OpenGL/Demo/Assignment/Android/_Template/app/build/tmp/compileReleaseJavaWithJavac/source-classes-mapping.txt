@@ -1,0 +1,4 @@
+com/nrlambole/firstwindow_ide/BuildConfig.java
+ com.nrlambole.firstwindow_ide.BuildConfig
+com/nrlambole/firstwindow_ide/MainActivity.java
+ com.nrlambole.firstwindow_ide.MainActivity
